@@ -19,6 +19,7 @@ from interview_app.structured import (
 from interview_app.ui import profile_inputs, remember_profile, render_cost, render_sidebar, require_api_key, show_error
 
 MAX_QUESTION_CHARS = 600
+CATEGORY_LABELS = {"technical": "Technical", "scenario": "Scenario", "behavioral": "Behavioural"}
 MAX_ANSWER_CHARS = 8000
 MODE_LABELS = {
     "json_schema": "JSON Schema enforced by the provider (strict)",
@@ -104,7 +105,7 @@ with qa_tab:
             st.caption(f"{meta['role']} · {meta['domain']} · {meta['difficulty']} · {len(document['questions'])} questions")
             for item in document["questions"]:
                 with st.expander(f"**{item['question_id']}** · {item['question']}", expanded=item["question_id"] == "Q1"):
-                    st.caption(f"{item['category'].capitalize()} · {item['difficulty']}")
+                    st.caption(f"{CATEGORY_LABELS.get(item['category'], item['category'].capitalize())} · {item['difficulty']}")
                     st.markdown("**Expected answer**")
                     st.write(item["expected_answer"])
                     st.markdown("**Key concepts:** " + " · ".join(item["key_concepts"]))

@@ -13,13 +13,13 @@ from interview_app.catalog import DOMAINS, FOCUS_KIND, all_roles, domain_for_rol
 
 ROLES = all_roles()
 
-FOCUSES = ["Balanced", "Technical depth", "System design", "Behavioral"]
+FOCUSES = ["Balanced", "Technical depth", "System design", "Behavioural"]
 
 QUESTION_BANK = {
     "Full-Stack Developer": [
         ("How would you design a feature that updates the UI optimistically while keeping the server as the source of truth?", "Frontend and API design"),
         ("Walk through how you would investigate a slow page that makes several API calls.", "Performance"),
-        ("How would you model permissions for a team-based application across the frontend and backend?", "Security and data modeling"),
+        ("How would you model permissions for a team-based application across the frontend and backend?", "Security and data modelling"),
         ("Describe a database migration you would make without interrupting active users.", "Data and reliability"),
         ("Tell me about a product decision you influenced with technical evidence.", "Product thinking"),
         ("How would you test a checkout flow that spans browser state, an API, and a database?", "Testing"),
@@ -35,7 +35,7 @@ QUESTION_BANK = {
         ("Describe a trade-off you made between delivery speed and long-term maintainability.", "Judgment"),
         ("How would you design an experiment when traffic is limited?", "Experimentation"),
         ("How do you collaborate with design when a proposed interaction is expensive to build?", "Collaboration"),
-        ("How would you prioritize reliability work against a feature commitment?", "Prioritization"),
+        ("How would you prioritise reliability work against a feature commitment?", "Prioritisation"),
         ("Tell me about a feature you shipped that did not achieve its goal. What did you learn?", "Learning"),
         ("How would you handle conflicting feedback from users and internal stakeholders?", "Communication"),
         ("What signals would you use to decide whether to iterate on or remove a feature?", "Product judgment"),
@@ -239,7 +239,7 @@ DOMAIN_QUESTIONS: dict[str, dict[str, list[tuple[str, str, str]]]] = {
     },
 }
 
-_BEHAVIORAL_WORDS = ("product", "ownership", "collaboration", "communication", "learning", "judgment", "impact", "reflection", "customer", "prioritization")
+_BEHAVIORAL_WORDS = ("product", "ownership", "collaboration", "communication", "learning", "judgment", "impact", "reflection", "customer", "prioritisation")
 _SCENARIO_WORDS = ("system", "architecture", "reliability", "api design", "distributed", "queues", "data architecture", "data and reliability")
 
 

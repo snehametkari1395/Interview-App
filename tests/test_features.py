@@ -60,7 +60,7 @@ class QuestionBankTests(unittest.TestCase):
         self.assertFalse(easy & hard)
 
     def test_focus_filters_by_kind(self):
-        questions = get_questions("HR Generalist", "Behavioral", 1, "Human Resources", "Hard")
+        questions = get_questions("HR Generalist", "Behavioural", 1, "Human Resources", "Hard")
         self.assertEqual(questions[0]["kind"], "behavioral")
 
 

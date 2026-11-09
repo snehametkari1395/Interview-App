@@ -15,7 +15,7 @@
 | role | Software Engineer | |
 | company | Northwind Payments | only if the user provides one or chain A finds one |
 | difficulty | Medium | |
-| category | technical / scenario / behavioral | |
+| category | `technical` / `scenario` / `behavioral` | stored value; shown as "Behavioural" in the app |
 | topic | Generators | |
 | source | interview chat / practice room / question memory | |
 | created_at | 2026-11-09T09:40:12+00:00 | generation timestamp |
