@@ -2,6 +2,30 @@
 
 A Streamlit app for AI interview preparation: a conversational AI interviewer, domain-specific practice, job-description analysis, structured interview data, interviewer guides, and developer tools for model configuration, evaluation, and security testing. AI features run through OpenRouter; the advanced workflows use LangChain and LangGraph, open-weight models by default, and a local ChromaDB vector store to avoid repeating questions.
 
+## Optional tasks: submission summary
+
+**Medium tasks** (all implemented and verified live)
+
+| Task | Where to see it |
+| --- | --- |
+| Model configuration and parameter tuning (capability-aware, unsupported parameters never sent) | Model settings page, Model lab page · `interview_app/model_config.py` |
+| Structured JSON output formats (Q&A set, evaluation) validated against JSON Schemas | Structured output page · `interview_app/schemas.py` |
+| Prompt cost calculator (estimated and actual cost from live OpenRouter pricing) | Structured output page, sidebar, Model settings · `interview_app/pricing.py` |
+| Improvement from the OpenRouter docs: retries with backoff, `require_parameters` routing, fallback model | `interview_app/openrouter.py`, `interview_app/chains/llm.py` |
+| Security testing and jailbreak experiments (48 tests) | Security lab page · [docs/SECURITY_TEST_REPORT.md](docs/SECURITY_TEST_REPORT.md) |
+
+**Hard tasks**
+
+| Task | Status | Evidence |
+| --- | --- | --- |
+| 1. Conversational AI interviewer chatbot | Implemented, verified live | Interview chat page · [docs/demos/interview_transcript.md](docs/demos/interview_transcript.md) |
+| 2. LangChain chains (A–E) and LangGraph workflow | Implemented, verified live | [docs/LANGCHAIN.md](docs/LANGCHAIN.md) · [docs/demos/langchain_chains.md](docs/demos/langchain_chains.md) |
+| 3. Vector database duplicate detection | Implemented, verified live | Question memory page · [docs/VECTOR_DB.md](docs/VECTOR_DB.md) · [docs/demos/duplicate_detection.md](docs/demos/duplicate_detection.md) |
+| 4. Open-weight model integration | Implemented; live open-weight run pending | [docs/MODEL_COMPARISON.md](docs/MODEL_COMPARISON.md) |
+| 5. Prompt and model evaluation (LLM as a judge) | Implemented and tested offline; live run pending | Evaluation page · [docs/EVALUATION.md](docs/EVALUATION.md) |
+
+Tasks 4 and 5 could not be run live because the development OpenRouter account's workspace guardrail blocked every open-weight model. Live runs used `openai/gpt-4o-mini` as a labelled stand-in. Once the models are allowed, `uv run python scripts/run_evaluation.py --yes` and `uv run python scripts/run_demos.py all` complete them. Full test results: [docs/TESTING_REPORT.md](docs/TESTING_REPORT.md).
+
 ## Setup
 
 1. Install [uv](https://docs.astral.sh/uv/) (Python 3.11+).
