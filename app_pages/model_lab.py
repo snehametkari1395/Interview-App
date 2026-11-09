@@ -23,7 +23,7 @@ CONFIG_LABELS = ("A", "B", "C")
 DEFAULT_TEMPERATURES = (0.0, 0.7, 1.3)
 NO_EFFORT = "Model default"
 
-st.set_page_config(page_title="Model lab | Fieldnotes", page_icon=":material/tune:", layout="wide")
+st.set_page_config(page_title="Model lab | Interview App", page_icon=":material/tune:", layout="wide")
 
 render_sidebar()
 

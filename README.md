@@ -1,4 +1,4 @@
-# Fieldnotes Interview Practice
+# Interview App
 
 A Streamlit app for AI interview preparation: a conversational AI interviewer, domain-specific practice, job-description analysis, structured interview data, interviewer guides, and developer tools for model configuration, prompt engineering, and security testing. AI features run through OpenRouter (`openai/gpt-6-luna` by default); the advanced workflows use LangChain and LangGraph, and a ChromaDB vector store with `qwen/qwen3-embedding-8b` embeddings avoids repeating questions.
 

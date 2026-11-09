@@ -13,7 +13,7 @@ from interview_app.question_bank import get_questions
 from interview_app.security_guard import FLAG_DESCRIPTIONS, GuardError, assess_input, guard_untrusted_input
 from interview_app.ui import profile_inputs, remember_profile, render_sidebar, show_error
 
-st.set_page_config(page_title="Fieldnotes | Interview practice", page_icon=":material/code:", layout="wide")
+st.set_page_config(page_title="Practice room | Interview App", page_icon=":material/code:", layout="wide")
 
 MAX_ANSWER_CHARS = 8000
 QUESTION_ICON_PRACTICE = ":material/record_voice_over:"

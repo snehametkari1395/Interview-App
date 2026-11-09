@@ -591,7 +591,7 @@ def report_markdown(records: list[TestRecord], model: str | None = None) -> str:
     passed = sum(record.passed for record in records)
     live_cost = sum(record.cost_usd or 0 for record in records if record.live)
     lines = [
-        "# Fieldnotes security test report",
+        "# Interview App security test report",
         "",
         f"Generated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} · {passed}/{len(records)} passed"
         + (f" · live model `{model}` · live cost ${live_cost:.4f}" if model else " · deterministic tests only"),

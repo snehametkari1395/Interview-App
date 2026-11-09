@@ -1,6 +1,6 @@
 # Architecture
 
-Fieldnotes is a Streamlit application backed by OpenRouter. The original one-shot features (practice room, job description, structured output, interviewer guide) are preserved. The advanced features add a LangChain/LangGraph layer and a ChromaDB vector store on top of the same security, model-configuration, and cost modules.
+Interview App is a Streamlit application backed by OpenRouter. The original one-shot features (practice room, job description, structured output, interviewer guide) are preserved. The advanced features add a LangChain/LangGraph layer and a ChromaDB vector store on top of the same security, model-configuration, and cost modules.
 
 ## Components
 

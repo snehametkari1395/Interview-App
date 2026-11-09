@@ -7,7 +7,7 @@ from interview_app.ui import profile_inputs, remember_profile, render_sidebar, r
 
 MAX_FOCUS_CHARS = 300
 
-st.set_page_config(page_title="Interviewer guide | Fieldnotes", page_icon=":material/fact_check:", layout="wide")
+st.set_page_config(page_title="Interviewer guide | Interview App", page_icon=":material/fact_check:", layout="wide")
 
 params = render_sidebar()
 

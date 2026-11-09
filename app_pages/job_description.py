@@ -12,7 +12,7 @@ from interview_app.ui import render_cost, render_sidebar, show_error
 
 MAX_JD_CHARS = 12000
 
-st.set_page_config(page_title="Job description | Fieldnotes", page_icon=":material/description:", layout="wide")
+st.set_page_config(page_title="Job description | Interview App", page_icon=":material/description:", layout="wide")
 
 render_sidebar()
 

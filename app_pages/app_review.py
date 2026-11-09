@@ -7,13 +7,13 @@ from interview_app.ui import render_sidebar, require_api_key, show_error
 SEVERITY_BADGE = {"high": ("High", "red"), "medium": ("Medium", "orange"), "low": ("Low", "gray")}
 PERSPECTIVE_ICON = {"Usability": ":material/touch_app:", "Security": ":material/shield:", "Prompt engineering": ":material/edit_note:"}
 
-st.set_page_config(page_title="App review | Fieldnotes", page_icon=":material/rate_review:", layout="wide")
+st.set_page_config(page_title="App review | Interview App", page_icon=":material/rate_review:", layout="wide")
 
 params = render_sidebar()
 
 st.badge("APP REVIEW", icon=":material/rate_review:", color="green")
 st.title("AI critique of this app", icon=":material/rate_review:")
-st.caption("Ask the configured model to review Fieldnotes for usability, security, and prompt engineering, with actionable recommendations.")
+st.caption("Ask the configured model to review Interview App for usability, security, and prompt engineering, with actionable recommendations.")
 
 with st.container(border=True):
     st.markdown("**What gets sent**")
@@ -77,7 +77,7 @@ if critique:
     st.download_button(
         "Download review as Markdown",
         data=critique_to_markdown(critique),
-        file_name="fieldnotes-app-review.md",
+        file_name="interview-app-review.md",
         mime="text/markdown",
         icon=":material/download:",
         on_click="ignore",

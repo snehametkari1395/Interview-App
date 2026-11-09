@@ -85,7 +85,7 @@ def _chat_model(spec: ModelSpec, plan: RequestPlan, streaming: bool) -> ChatOpen
         stream_usage=True,
         max_retries=SDK_RETRIES,
         request_timeout=REQUEST_TIMEOUT_MS,
-        app_title="Fieldnotes Interview Practice",
+        app_title="Interview App",
     )
 
 

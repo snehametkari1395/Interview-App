@@ -39,7 +39,7 @@ MAX_FILE_CHARS = 24000
 MAX_DOSSIER_CHARS = 140000
 
 FEATURE_SUMMARY = (
-    "Fieldnotes is a Streamlit interview-practice app. Users choose a domain, role, difficulty, response depth, "
+    "Interview App is a Streamlit interview-practice app. Users choose a domain, role, difficulty, response depth, "
     "and interviewer persona, then answer AI-generated or curated questions one at a time and receive structured "
     "feedback. Other pages analyse pasted job descriptions, generate interviewer guides, compare model parameter "
     "settings, and test security screening. All model calls go through OpenRouter from the Python server."
@@ -111,7 +111,7 @@ def run_critique(params: GenerationParams | None = None) -> tuple[dict, list[str
 
 
 def critique_to_markdown(critique: dict) -> str:
-    lines = ["# Fieldnotes application review", "", critique["overall_summary"], "", "## Top priorities"]
+    lines = ["# Interview App application review", "", critique["overall_summary"], "", "## Top priorities"]
     lines += [f"{index}. {item}" for index, item in enumerate(critique["top_priorities"], start=1)]
     for perspective in critique["perspectives"]:
         lines += ["", f"## {perspective['name']} ({perspective['score']}/5)", "", perspective["summary"], "", "**Strengths**"]

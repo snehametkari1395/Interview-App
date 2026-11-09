@@ -20,7 +20,7 @@ from interview_app.ui import model_label, provider_label, render_sidebar
 DEFAULT_EFFORT = "Model default"
 NO_FALLBACK = ""
 
-st.set_page_config(page_title="Model settings | Fieldnotes", page_icon=":material/settings:", layout="wide")
+st.set_page_config(page_title="Model settings | Interview App", page_icon=":material/settings:", layout="wide")
 
 render_sidebar()
 

@@ -304,7 +304,7 @@ def _post_with_retries(body: dict, api_key: str, log: list[str], client: httpx.C
         try:
             response = sender.post(
                 API_URL,
-                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "X-Title": "Fieldnotes Interview Practice"},
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "X-Title": "Interview App"},
                 json=body,
                 timeout=REQUEST_TIMEOUT_S,
             )

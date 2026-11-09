@@ -16,7 +16,7 @@ for thread in st.session_state.get("chat_threads", []):
         chat_states.append(graph.get_state(run_config(thread["id"])).values)
 progress = summarize(chat_states, st.session_state.get("practice_history", []))
 
-st.title("Welcome back" if progress.has_activity else "Welcome to Fieldnotes", icon=":material/waving_hand:")
+st.title("Welcome back" if progress.has_activity else "Welcome to Interview App", icon=":material/waving_hand:")
 st.caption("Ready for your next practice round? Pick up where you left off, or start something new.")
 
 # ---------------------------------------------------------------------------

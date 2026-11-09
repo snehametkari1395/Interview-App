@@ -16,7 +16,7 @@ from interview_app.ui import render_sidebar, require_api_key
 
 MAX_CUSTOM_CHARS = 4000
 
-st.set_page_config(page_title="Security lab | Fieldnotes", page_icon=":material/shield:", layout="wide")
+st.set_page_config(page_title="Security lab | Interview App", page_icon=":material/shield:", layout="wide")
 
 render_sidebar()
 

@@ -80,7 +80,7 @@ class AdvancedPageTests(unittest.TestCase):
 
     def test_home_dashboard_shows_session_progress(self):
         at = self.app()
-        self.assertTrue(any(title.value == "Welcome to Fieldnotes" for title in at.title))  # empty state
+        self.assertTrue(any(title.value == "Welcome to Interview App" for title in at.title))  # empty state
         at.switch_page("app_pages/interview_chat.py").run()
         self.button(at, "Start mock interview").click().run()
         at.chat_input[0].set_value("Decorators wrap a function in another function using closures.").run()

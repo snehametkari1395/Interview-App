@@ -1,4 +1,4 @@
-"""Fieldnotes entry point: optional access code, then grouped navigation for candidates and developer tools."""
+"""Interview App entry point: optional access code, then grouped navigation for candidates and developer tools."""
 
 import hmac
 
@@ -6,7 +6,7 @@ import streamlit as st
 
 from interview_app.navigation import available_pages
 
-st.set_page_config(page_title="Fieldnotes | Interview practice", page_icon="assets/icon.svg", layout="wide")
+st.set_page_config(page_title="Interview App", page_icon="assets/icon.svg", layout="wide")
 st.logo("assets/logo.svg", icon_image="assets/icon.svg", size="large")
 
 
@@ -20,7 +20,7 @@ def access_code() -> str:
 
 required = access_code()
 if required and not st.session_state.get("access_granted"):
-    st.title("Fieldnotes", icon=":material/graphic_eq:")
+    st.title("Interview App", icon=":material/graphic_eq:")
     st.caption("Interview practice. This deployment is protected by an access code.")
     with st.form("access", border=True):
         entered = st.text_input("Access code", type="password")

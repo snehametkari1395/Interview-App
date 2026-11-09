@@ -26,7 +26,7 @@ MODE_LABELS = {
     "prompt": "Prompted JSON + server-side schema validation",
 }
 
-st.set_page_config(page_title="Structured output | Fieldnotes", page_icon=":material/data_object:", layout="wide")
+st.set_page_config(page_title="Structured output | Interview App", page_icon=":material/data_object:", layout="wide")
 
 params = render_sidebar()
 model = active_model()
