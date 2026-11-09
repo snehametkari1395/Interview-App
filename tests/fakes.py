@@ -79,6 +79,8 @@ class FakeLLMs:
 
     def build_llm(self, spec, *, schema=None, schema_name="response", streaming=False):
         key = "reply" if schema is None else schema_name
+        if key == "candidate_message_triage" and not self.responses.get(key):
+            self.responses[key] = [{"category": "answer", "reply": ""}]  # default: the message is an answer
         if not self.responses.get(key):
             raise AssertionError(f"No scripted response left for {key}")
         content = self.responses[key].pop(0)

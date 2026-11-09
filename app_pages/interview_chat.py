@@ -9,10 +9,10 @@ import streamlit as st
 from interview_app.catalog import DOMAINS, PrepProfile
 from interview_app.chains.interview_graph import Dependencies, build_interview_graph, initial_state, run_config
 from interview_app.chains.llm import spec_from_session
-from interview_app.chains.workflows import interviewer_reply, job_context_from
+from interview_app.chains.workflows import BLOCKED_REPLY, interviewer_reply, job_context_from
 from interview_app.openrouter import active_model, describe_error, get_api_key, reserve_calls
 from interview_app.pricing import format_usd
-from interview_app.security_guard import FLAG_DESCRIPTIONS, GuardError, guard_untrusted_input
+from interview_app.security_guard import FLAG_DESCRIPTIONS, GuardError, assess_input, guard_untrusted_input, sanitize_text
 from interview_app.services import current_thresholds, get_question_memory, record_chain_usage
 from interview_app.ui import profile_inputs, remember_profile, render_sidebar, require_api_key, show_error
 
@@ -21,6 +21,7 @@ MAX_HINT_CHARS = 200
 MAX_COMPANY_CHARS = 120
 QUESTION_ICON = ":material/record_voice_over:"
 CANDIDATE_ICON = ":material/person:"
+TRIAGE_LABELS = {"clarification": "clarifying question", "off_topic": "off-topic request", "manipulation": "attempt to change the rules", "answer": "answer"}
 
 render_sidebar()
 
@@ -82,7 +83,15 @@ def run_graph(thread: dict, update: dict | None, deps: Dependencies, *, stream_f
         if kind == "done":
             break
         node = next(iter(payload))
-        if node == "evaluate" and stream_feedback:
+        if node == "triage":
+            verdict = payload["triage"]["last_triage"]
+            if verdict["category"] != "answer":
+                status.update(label=f"Not scored · {TRIAGE_LABELS[verdict['category']]}", state="running")
+                feedback = verdict["reply"]
+                st.write(feedback)
+            else:
+                status.update(label="Scoring your answer...", state="running")
+        elif node == "evaluate" and stream_feedback:
             evaluation = payload["evaluate"]["last_evaluation"]
             status.update(label=f"Scored {evaluation['overall_score']}/5 · choosing the next question...", state="running")
             try:
@@ -103,6 +112,23 @@ def run_graph(thread: dict, update: dict | None, deps: Dependencies, *, stream_f
     return feedback, extra
 
 
+def turn_entries(before: dict, after: dict, feedback: str) -> list[dict]:
+    """Transcript entries for one graph run: a polite reply, or feedback plus the next question."""
+    entries: list[dict] = []
+    if len(after.get("turns", [])) > len(before.get("turns", [])):
+        turn = after["turns"][-1]
+        entries.append({"role": "assistant", "kind": "feedback", "content": feedback, "score": turn["overall_score"],
+                        "technical": turn["technical_accuracy"], "communication": turn["communication_skills"],
+                        "problem_solving": turn["problem_solving"]})
+    elif (after.get("last_triage") or {}).get("category", "answer") != "answer" and feedback:
+        entries.append({"role": "assistant", "kind": "decline", "content": feedback, "category": after["last_triage"]["category"]})
+    current = after.get("current") or {}
+    if after.get("status") == "awaiting_answer" and current.get("question") != (before.get("current") or {}).get("question"):
+        entries.append({"role": "assistant", "kind": "question", "content": current["question"], "topic": current["topic"],
+                        "difficulty": current["difficulty"], "novelty": current.get("novelty")})
+    return entries
+
+
 def append_transcript(thread: dict, entries: list[dict]) -> None:
     config = run_config(thread["id"])
     graph.update_state(config, {"transcript": [*thread_state(thread["id"]).get("transcript", []), *entries]})
@@ -117,7 +143,7 @@ def dependencies() -> Dependencies:
 # ---------------------------------------------------------------------------
 st.badge("AI INTERVIEWER", icon=":material/forum:", color="violet")
 st.title("Interview chat", icon=":material/forum:")
-st.caption(f"Model `{active_model()}`. Each turn: evaluate (chain C), adapt difficulty, follow up (chain D), streamed feedback.")
+st.caption(f"Model `{active_model()}`. Each turn: defensive triage, evaluate (chain C), adapt difficulty, follow up (chain D), streamed feedback.")
 
 threads = st.session_state.chat_threads
 toolbar = st.container(horizontal=True, vertical_alignment="bottom")
@@ -237,6 +263,9 @@ with chat_column:
             if message.get("kind") == "question":
                 st.caption(f"{message.get('difficulty', '')} · {message.get('topic', '')}" + (f" · {message['novelty']} question" if message.get("novelty") else ""))
                 st.markdown(f"**{message['content']}**")
+            elif message.get("kind") == "decline":
+                st.write(message["content"])
+                st.caption(f"Not scored · {TRIAGE_LABELS.get(message.get('category'), 'not an answer')}")
             elif message.get("kind") == "feedback":
                 st.write(message["content"])
                 st.caption(f"Score {message['score']}/5 · technical {message['technical']}/5 · communication {message['communication']}/5 · problem-solving {message['problem_solving']}/5")
@@ -282,17 +311,8 @@ with chat_column:
                 reserve_calls(3)
                 with st.chat_message("assistant", avatar=QUESTION_ICON):
                     feedback, extra = run_graph(thread, None, deps, stream_feedback=bool(state.get("pending_answer")))
+                append_transcript(thread, turn_entries(state, thread_state(thread["id"]), feedback))
                 after = thread_state(thread["id"])
-                entries = []
-                if feedback and after.get("turns"):
-                    turn = after["turns"][-1]
-                    entries.append({"role": "assistant", "kind": "feedback", "content": feedback, "score": turn["overall_score"],
-                                    "technical": turn["technical_accuracy"], "communication": turn["communication_skills"], "problem_solving": turn["problem_solving"]})
-                if after.get("status") == "awaiting_answer":
-                    current = after["current"]
-                    entries.append({"role": "assistant", "kind": "question", "content": current["question"], "topic": current["topic"],
-                                    "difficulty": current["difficulty"], "novelty": current.get("novelty")})
-                append_transcript(thread, entries)
                 log_new_usage(thread, after, extra)
                 st.rerun()
             except Exception as error:
@@ -303,6 +323,10 @@ if answer:
     try:
         clean, assessment = guard_untrusted_input(answer, "answer", MAX_ANSWER_CHARS)
     except GuardError as error:
+        if assess_input(answer).blocked:  # e.g. dictating a score: decline politely in the chat, no model call
+            append_transcript(thread, [{"role": "user", "content": sanitize_text(answer)[:MAX_ANSWER_CHARS], "flags": list(assess_input(answer).flags)},
+                                       {"role": "assistant", "kind": "decline", "content": BLOCKED_REPLY, "category": "manipulation"}])
+            st.rerun()
         st.error(str(error))
         st.stop()
     deps = dependencies()
@@ -310,20 +334,13 @@ if answer:
         with st.chat_message("user", avatar=CANDIDATE_ICON):
             st.write(clean)
         try:
-            reserve_calls(3)
+            reserve_calls(4)
             user_entry = {"role": "user", "content": clean, "flags": list(assessment.flags)}
             update = {"pending_answer": clean, "pending_flags": list(assessment.flags), "transcript": [*state.get("transcript", []), user_entry]}
             with st.chat_message("assistant", avatar=QUESTION_ICON):
                 feedback, extra = run_graph(thread, update, deps, stream_feedback=True)
+            append_transcript(thread, turn_entries(state, thread_state(thread["id"]), feedback))
             after = thread_state(thread["id"])
-            turn = after["turns"][-1]
-            entries = [{"role": "assistant", "kind": "feedback", "content": feedback, "score": turn["overall_score"],
-                        "technical": turn["technical_accuracy"], "communication": turn["communication_skills"], "problem_solving": turn["problem_solving"]}]
-            if after.get("status") == "awaiting_answer":
-                current = after["current"]
-                entries.append({"role": "assistant", "kind": "question", "content": current["question"], "topic": current["topic"],
-                                "difficulty": current["difficulty"], "novelty": current.get("novelty")})
-            append_transcript(thread, entries)
             log_new_usage(thread, after, extra)
             st.rerun()
         except GuardError as error:

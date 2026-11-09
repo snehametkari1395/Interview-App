@@ -2,9 +2,9 @@
 
 ## Choice
 
-**ChromaDB** (`chromadb` 1.5) with a persistent local collection in `data/chroma/` (git-ignored). FAISS was considered but rejected for this app: it stores only vectors, so metadata filtering (domain, role, company, difficulty) would need a second store kept in sync. ChromaDB keeps vectors, documents, and metadata together, supports `where` filters, and needs no server.
+**ChromaDB** (`chromadb` 1.5) with a persistent local collection in `data/chroma/` (git-ignored). FAISS was considered and rejected for this app: it stores only vectors, so metadata filtering (domain, role, company, difficulty) would need a second store kept in sync. ChromaDB keeps vectors, documents, and metadata together, supports `where` filters, and needs no server.
 
-**Embedding model:** `all-MiniLM-L6-v2` (Apache-2.0), run locally through ChromaDB's ONNX runtime. It is downloaded once (~80 MB) to `~/.cache/chroma`. Question text never leaves the machine for embedding and there is no per-call cost.
+**Embedding model:** `qwen/qwen3-embedding-8b` (the project's recommended embedding model, 4,096 dimensions), called through the OpenRouter embeddings endpoint by a custom ChromaDB embedding function (`OpenRouterEmbedding` in `vectorstore.py`). Only generated question text is sent for embedding, at about $0.01 per million tokens. The API key is resolved at call time and never stored in the collection's persisted configuration. Each embedding model uses its own collection, because vector sizes differ.
 
 ## What is stored
 
@@ -20,7 +20,7 @@
 | source | interview chat / practice room / question memory | |
 | created_at | 2026-11-09T09:40:12+00:00 | generation timestamp |
 
-Metadata is whitelisted in `QuestionMemory.add`; anything else (for example a candidate answer passed by mistake) is dropped. A unit test verifies this. Candidate answers, transcripts, and scores are never stored.
+Metadata is whitelisted in `QuestionMemory.add`; anything else (for example a candidate answer passed by mistake) is dropped. A unit test verifies this. Candidate answers, transcripts, and scores are never stored or embedded.
 
 ## How detection works
 
@@ -34,50 +34,43 @@ request → avoid = nearest stored questions (top 8, same domain)          [retr
         → accepted questions are stored with metadata
 ```
 
-Similarity is cosine similarity (1 − ChromaDB's cosine distance) between embeddings, so paraphrases are matched by meaning, not text. Follow-up questions in the interview chat may be "similar" to earlier ones (they stay on topic) but never duplicates, and new-topic questions are checked the same way.
+Similarity is cosine similarity (1 − ChromaDB's cosine distance) between embeddings, so paraphrases are matched by meaning, not by text. In the interview chat, follow-up questions may be "similar" to earlier ones (they stay on topic) but never duplicates; new-topic questions are checked the same way.
 
 ## Calibrating the thresholds
 
-The initial plan proposed 0.90 / 0.75. Measuring 17 labelled question pairs with this embedding model (`scripts/calibrate_similarity.py`) showed those values were wrong for MiniLM:
+Thresholds depend on the embedding model, so they were measured on 17 labelled question pairs (`scripts/calibrate_similarity.py`) with `qwen/qwen3-embedding-8b`:
 
-| Label | Similarity range | Example |
+| Label | Similarity range | Examples |
 | --- | --- | --- |
-| Duplicate (same question reworded) | 0.630 – 0.928 | "caching decorator" vs "memoizing decorator": 0.630 · decorators reworded: 0.928 |
-| Similar (same sub-topic, different angle) | 0.446 – 0.602 | DCF vs choosing the discount rate: 0.602 |
-| New (different question) | −0.030 – 0.573 | decorators vs generators: 0.573 · A/B test vs team conflict: −0.030 |
+| Duplicate (same question reworded) | 0.828 – 0.957 | decorators reworded: 0.957 · "caching decorator" vs "memoizing decorator": 0.828 |
+| Similar (same sub-topic, different angle) | 0.703 – 0.833 | decorators vs "decorator for logging": 0.833 · A/B test vs sample size: 0.706 |
+| New (different question) | 0.336 – 0.692 | decorators vs generators: 0.692 · A/B test vs team conflict: 0.336 |
 
-At 0.90, most real duplicates would have passed as new. The defaults are therefore:
+Defaults:
 
-- **Duplicate ≥ 0.62**: just below the lowest duplicate (0.630) and above the highest similar pair (0.602). This is the only boundary that matters for rejection, and it separates the labelled set cleanly, with a narrow margin.
-- **Similar ≥ 0.45**: "similar" and "new" overlap (decorators vs generators scores 0.573), so this label is informational only. Overlap here is harmless because similar questions are kept.
+- **Similar ≥ 0.70**: separates "similar" from "new" cleanly on this set (highest new pair 0.692, lowest similar pair 0.703). This is why a decorators question and a generators question are *not* confused: generators scores 0.692 and is a new question.
+- **Duplicate ≥ 0.85**: duplicates and similar questions overlap slightly (the memoizing-decorator duplicate scores 0.828, the decorator-for-logging question 0.833). At 0.85, no useful question is rejected and 5 of 6 duplicates are caught; the remaining one is kept and labelled "similar". Wrongly rejecting a good question was judged worse than letting one close rewording through, and the LLM "avoid" list is a second layer against repeats.
 
-This is why "decorators" and "generators" are not confused: the generators question is labelled *similar* (same language, different concept) and accepted, while a reworded decorators question is a *duplicate* and rejected. Both thresholds are sliders on the Question memory page.
+Both thresholds are sliders on the Question memory page. An earlier version used a local MiniLM model, where the same pairs scored much lower (duplicates 0.63–0.93), which shows why thresholds must be recalibrated whenever the embedding model changes.
 
-**Limitations.** 17 pairs is a small calibration set; thresholds are specific to the embedding model (switching to, say, `bge-m3` requires recalibrating); generated questions are often longer than the calibration pairs, which can shift scores; and two questions on the same concept phrased very differently can fall below the duplicate threshold. The LLM "avoid" list is a second, semantic layer that catches some of these.
+**Limitations.** 17 pairs is a small calibration set; generated questions are often longer than the calibration pairs, which can shift scores; and two questions on the same concept phrased very differently can fall below the duplicate threshold.
 
 ## Live demonstration
 
-[demos/duplicate_detection.md](demos/duplicate_detection.md) (isolated in-memory collection; `openai/gpt-4o-mini` for generation):
+[demos/duplicate_detection.md](demos/duplicate_detection.md) (`openai/gpt-6-luna` for generation, isolated in-memory collection):
 
 | Candidate question vs stored "What are Python decorators and how do they work?" | Similarity | Label |
 | --- | --- | --- |
-| Can you explain how decorators function in Python? | 0.928 | duplicate |
-| How would you use a decorator to add logging to functions? | 0.563 | similar |
-| What are Python generators and when would you use them? | 0.573 | similar |
-| Explain list comprehensions in Python. | 0.417 | new |
+| Can you explain how decorators function in Python? | 0.955 | duplicate |
+| How would you use a decorator to add logging to functions? | 0.833 | similar |
+| What are Python generators and when would you use them? | 0.684 | new |
+| Explain list comprehensions in Python. | 0.590 | new |
 
-Then chain B was asked for two Python questions with the stored decorators question in its avoid list:
-
-| Generated question | Similarity | Outcome |
-| --- | --- | --- |
-| Can you explain what a Python generator is and when you would use it? | n/a | rejected: labelled Easy in a Medium request |
-| Implement a caching mechanism… would you use a decorator for this? | 0.669 | rejected: duplicate of the decorators question |
-| Can you explain what a generator is in Python and when you might choose one over a list? | 0.461 | accepted, similar |
-| Describe a scenario where you would use context managers in Python. | 0.406 | accepted, new |
+Chain B was then asked for two more Python questions with the stored decorators question in its avoid list. It produced a generators scenario (0.355, new) and a `functools.wraps` decorator scenario (0.563, new: same feature, different concept), both accepted.
 
 ## Code
 
-- `interview_app/vectorstore.py`: `QuestionMemory` (`check`, `similar`, `avoid_list`, `add`, `list_questions`, `delete`, `clear`), `Thresholds`.
+- `interview_app/vectorstore.py`: `OpenRouterEmbedding`, `QuestionMemory` (`check`, `similar`, `avoid_list`, `add`, `list_questions`, `delete`, `clear`), `Thresholds`.
 - `interview_app/chains/workflows.py`: `generate_unique_questions`.
 - `interview_app/chains/interview_graph.py`: de-duplication in `opening` and `plan_next`.
 - `app_pages/question_memory.py`: thresholds, check tool, generate-without-repeats demo, browse and delete.

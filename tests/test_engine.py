@@ -307,8 +307,8 @@ class NewPageTests(unittest.TestCase):
         self.assertEqual(at.session_state.model_settings.top_p, 0.8)
         self.assertFalse(at.slider(key="cfg_top_k_s").disabled)
         self.assertTrue(at.slider(key="cfg_frequency_penalty_s").disabled)  # not in supported_parameters
-        at.selectbox(key="cfg_provider").select("other").run()
-        self.assertEqual(at.session_state.selected_model, "other/model")
+        at.selectbox(key="cfg_provider").select("anthropic").run()  # only approved models are offered
+        self.assertEqual(at.session_state.selected_model, "anthropic/claude-sonnet-5.5")
         self.assertTrue(at.selectbox(key="cfg_effort").disabled)
 
 

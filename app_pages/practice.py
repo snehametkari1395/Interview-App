@@ -4,18 +4,19 @@ import streamlit as st
 
 from interview_app.catalog import DOMAINS, PERSONAS
 from interview_app.chains.llm import spec_from_session
-from interview_app.chains.workflows import generate_unique_questions, job_context_from
+from interview_app.chains.workflows import BLOCKED_REPLY, generate_unique_questions, job_context_from, triage_chain
 from interview_app.coaching import review_answer
 from interview_app.openrouter import describe_error, get_api_key, reserve_calls
 from interview_app.services import current_thresholds, get_question_memory, record_chain_usage
 from interview_app.pricing import format_usd
 from interview_app.question_bank import get_questions
-from interview_app.security_guard import FLAG_DESCRIPTIONS, GuardError, guard_untrusted_input
+from interview_app.security_guard import FLAG_DESCRIPTIONS, GuardError, assess_input, guard_untrusted_input
 from interview_app.ui import profile_inputs, remember_profile, render_sidebar, show_error
 
 st.set_page_config(page_title="Fieldnotes | Interview practice", page_icon=":material/code:", layout="wide")
 
 MAX_ANSWER_CHARS = 8000
+QUESTION_ICON_PRACTICE = ":material/record_voice_over:"
 QUESTION_SOURCES = ["AI-generated", "Curated bank"]
 GENERIC_HINT = "Set the context, explain your decision or approach, share the result, and reflect on what you learned."
 
@@ -197,9 +198,20 @@ def render_summary(answers: list[dict], profile) -> None:
 def submit_answer(profile, mode: str, question: dict, index: int, answer: str) -> None:
     try:
         clean_answer, assessment = guard_untrusted_input(answer, "answer", MAX_ANSWER_CHARS)
+        reserve_calls(2)
         with st.spinner("Reviewing your answer..."):
+            # Defensive triage: off-topic requests and manipulation attempts get a polite reply, not a score.
+            verdict = triage_chain(spec_from_session(), profile).invoke(
+                {"current_question": question["question"], "candidate_message": clean_answer})
+            record_chain_usage([verdict.usage_record()])
+            if verdict.data["category"] != "answer":
+                st.info(verdict.data["reply"], icon=QUESTION_ICON_PRACTICE)
+                return
             result = review_answer(profile, mode, question["question"], clean_answer, input_flags=assessment.flags)
     except GuardError as error:
+        if assess_input(answer).blocked:
+            st.info(BLOCKED_REPLY, icon=QUESTION_ICON_PRACTICE)
+            return
         st.error(str(error))
         return
     except Exception as error:

@@ -1,6 +1,6 @@
 # Demo: LangChain chains A-E
 
-Run 2026-11-09 09:09 UTC · model `openai/gpt-4o-mini`
+Run 2026-11-09 09:34 UTC · model `openai/gpt-6-luna`
 
 ## A · Job description analysis
 
@@ -10,92 +10,91 @@ Run 2026-11-09 09:09 UTC · model `openai/gpt-4o-mini`
   "relevance_note": "",
   "role_title": "Backend Developer",
   "company": "Northwind Payments",
-  "role_summary": "Northwind Payments is looking for a Backend Developer to create Python services for processing card transactions. The role involves designing REST APIs, managing data with PostgreSQL, implementing caching solutions, and writing automated tests.",
+  "role_summary": "Build Python services using FastAPI to process card transactions. The role includes designing APIs, working with PostgreSQL and Redis, writing automated tests, and participating in the on-call rotation.",
   "required_skills": [
     {
-      "name": "Python",
+      "name": "Python and FastAPI",
       "importance": "must-have",
-      "evidence": "build Python (FastAPI) services"
+      "evidence": "The role is to build Python (FastAPI) services."
     },
     {
-      "name": "FastAPI",
+      "name": "Idempotent REST API design",
       "importance": "must-have",
-      "evidence": "build Python (FastAPI) services"
+      "evidence": "You will design idempotent REST APIs."
     },
     {
-      "name": "REST APIs",
+      "name": "PostgreSQL data modeling",
       "importance": "must-have",
-      "evidence": "design idempotent REST APIs"
+      "evidence": "You will model data in PostgreSQL."
     },
     {
-      "name": "PostgreSQL",
+      "name": "Redis caching",
       "importance": "must-have",
-      "evidence": "model data in PostgreSQL"
+      "evidence": "You will add caching with Redis."
     },
     {
-      "name": "Redis",
+      "name": "Automated testing",
       "importance": "must-have",
-      "evidence": "add caching with Redis"
+      "evidence": "You will write automated tests."
     },
     {
-      "name": "Automated Testing",
+      "name": "On-call support",
       "importance": "must-have",
-      "evidence": "write automated tests"
+      "evidence": "You will join the on-call rotation."
     }
   ],
   "technical_competencies": [
-    "Backend development",
-    "API design",
-    "Database management",
-    "Caching strategies",
-    "Automated testing"
+    "Python and FastAPI service development",
+    "Idempotency and REST API design",
+    "PostgreSQL data modeling",
+    "Redis caching",
+    "Automated testing",
+    "Operational support for transaction-processing services"
   ],
   "behavioural_competencies": [
-    "Team collaboration",
-    "Problem-solving",
-    "Adaptability",
-    "Communication"
+    "Reliability and ownership during on-call incidents"
   ],
   "interview_topics": [
-    "Python programming",
-    "FastAPI framework",
-    "REST API design principles",
-    "PostgreSQL data modeling",
-    "Caching mechanisms with Redis",
-    "Automated testing practices"
+    "Designing idempotent transaction APIs",
+    "Building services with Python and FastAPI",
+    "Modeling payment data in PostgreSQL",
+    "Using Redis for caching",
+    "Testing backend services",
+    "Troubleshooting production incidents during on-call"
   ],
   "likely_questions": [
-    "Can you explain how you would design a REST API for processing transactions?",
-    "What are the advantages of using FastAPI over other frameworks?",
-    "How do you handle data modeling in PostgreSQL?",
-    "What caching strategies have you implemented using Redis?",
-    "Can you describe your experience with writing automated tests?"
+    "How would you design an idempotent endpoint for processing a card transaction?",
+    "How do you structure a Python service using FastAPI?",
+    "How would you model transaction data in PostgreSQL?",
+    "What caching scenarios would you consider for Redis in a payments service?",
+    "What automated tests would you write for a transaction-processing API?",
+    "How would you investigate and respond to a production incident while on call?"
   ],
   "prep_plan": [
     {
-      "step": "Review Python and FastAPI",
-      "focus": "Core programming skills",
-      "action": "Practice building basic FastAPI applications"
+      "step": "Review Python and FastAPI service design",
+      "focus": "Service structure, request validation, error handling, and API behavior",
+      "action": "Prepare a concise example of a FastAPI service you have built or outline how you would implement one."
     },
     {
-      "step": "Study REST API design",
-      "focus": "API principles",
-      "action": "Read about idempotency and best practices in API design"
+      "step": "Practice idempotent REST API design",
+      "focus": "Safe handling of retries and duplicate transaction requests",
+      "action": "Work through an endpoint design covering idempotency keys, persistence, and response behavior."
     },
     {
-      "step": "Learn PostgreSQL",
-      "focus": "Database management",
-      "action": "Work on data modeling exercises"
+      "step": "Refresh PostgreSQL and Redis fundamentals",
+      "focus": "Relational data modeling and appropriate cache use",
+      "action": "Practice sketching a transaction schema and explaining when Redis caching would or would not be appropriate."
     },
     {
-      "step": "Explore Redis caching",
-      "focus": "Caching strategies",
-      "action": "Implement caching in a sample project"
+      "step": "Prepare to discuss automated testing",
+      "focus": "Tests for normal, failure, and duplicate-request paths",
+      "action": "Describe a test strategy for a transaction API, including relevant unit and integration tests."
     },
     {
-      "step": "Practice automated testing",
-      "focus": "Testing skills",
-      "action": "Write tests for existing codebases"
+      "step": "Prepare for on-call scenarios",
+      "focus": "Incident investigation and service reliability",
+      "action": "Practice a structured walkthrough of diagnosing an API or database issue and communicating during response."
     }
   ]
 }
@@ -106,44 +105,46 @@ Run 2026-11-09 09:09 UTC · model `openai/gpt-4o-mini`
 ```json
 [
   {
-    "question": "How would you implement caching in a FastAPI application using Redis, and what factors would you consider when deciding what to cache?",
-    "topic": "Caching mechanisms with Redis",
-    "category": "scenario",
+    "question": "You are building a FastAPI endpoint that accepts payment requests, and clients may retry when they do not receive a response. How would you design the endpoint to prevent a retry from creating a duplicate transaction, and what would you store or return for repeated requests?",
+    "topic": "Idempotent API design",
+    "category": "technical",
     "difficulty": "Medium",
     "expected_answer_points": [
-      "Identify types of data suitable for caching",
-      "Explain how to set up Redis with FastAPI",
-      "Discuss cache expiration strategies"
+      "Require a client-supplied idempotency key and define its scope and retention period.",
+      "Enforce uniqueness for the key in PostgreSQL so concurrent requests cannot create duplicate transactions.",
+      "Persist the request outcome or transaction reference so retries can return a consistent response.",
+      "Handle reuse of a key with a different request payload explicitly, such as rejecting it.",
+      "Test repeated requests, concurrent requests, and failure cases around transaction creation."
     ],
     "follow_up_questions": [
-      "What would you do if the cache becomes stale?",
-      "How would you measure the effectiveness of your caching strategy?",
-      "Can you provide an example of a caching scenario you've encountered?"
+      "What would happen if two requests with the same key arrive at the same time?",
+      "How would you handle a retry after the transaction was committed but before the response reached the client?"
     ],
-    "hint": "Discuss the setup, data types, and expiration.",
+    "hint": "Explain key handling, persistence and concurrency, then how retries are answered and tested.",
     "novelty": "new",
     "nearest": "",
     "similarity": 0.0
   },
   {
-    "question": "In a REST API design, how would you handle versioning, and what are the trade-offs of the different approaches you might take?",
-    "topic": "REST API design principles",
+    "question": "During on-call, payment requests begin timing out after a service deployment, while database load is elevated. How would you investigate and stabilize the service, and how would you reduce the chance of duplicate payments while recovering?",
+    "topic": "On-call reliability",
     "category": "scenario",
     "difficulty": "Medium",
     "expected_answer_points": [
-      "Explain different versioning strategies (e.g., URI versioning, header versioning)",
-      "Discuss the impact on client compatibility",
-      "Consider maintenance and documentation implications"
+      "Check alerts, request latency and error rates, deployment timing, and service and database logs or traces to narrow the cause.",
+      "Prioritize safe mitigation, such as rollback or reducing load, while communicating status and preserving transaction integrity.",
+      "Use idempotency or transaction records to make retries safe; avoid blindly replaying payment requests.",
+      "Verify recovery with service and database metrics, and reconcile any requests with uncertain outcomes.",
+      "Document findings and follow up with a targeted fix, tests, or operational safeguards."
     ],
     "follow_up_questions": [
-      "What if you need to deprecate an old version?",
-      "How would you communicate changes to your API consumers?",
-      "Can you give an example of a versioning strategy you've used?"
+      "How would you decide whether to roll back or keep investigating the deployment?",
+      "What evidence would you use to identify requests whose payment outcome is uncertain?"
     ],
-    "hint": "Outline strategies, impacts, and examples.",
+    "hint": "Structure your response around diagnosis, immediate mitigation, transaction safety, and verification.",
     "novelty": "new",
-    "nearest": "How would you implement caching in a FastAPI application using Redis, and what factors would you consider when deciding what to cache?",
-    "similarity": 0.269
+    "nearest": "You are building a FastAPI endpoint that accepts payment requests, and clients may retry when they do not receive a response. How would you design the endpoint to prevent a retry from creating a duplicate transaction, and what would you store or return for repeated requests?",
+    "similarity": 0.5111
   }
 ]
 ```
@@ -155,39 +156,42 @@ Answer: I would add an index on the column we filter by and check the query plan
 ```json
 {
   "overall_score": 1,
-  "summary": "The candidate's response does not address the question regarding caching in a FastAPI application using Redis.",
+  "summary": "The answer discusses query indexing and query plans, which do not address preventing duplicate payment transactions on retries. It provides no design for repeated requests or their outcomes.",
   "technical_accuracy": {
-    "score": 1,
-    "comment": "The answer is unrelated to the question about caching and instead discusses indexing and query plans."
+    "score": 2,
+    "comment": "Adding an index may improve query performance, but it does not ensure idempotency or prevent concurrent duplicate transactions."
   },
   "communication_skills": {
-    "score": 1,
-    "comment": "The response is unclear and does not communicate relevant information regarding the implementation of caching."
+    "score": 3,
+    "comment": "The response is clear but too brief to explain an approach to the question."
   },
   "problem_solving": {
     "score": 1,
-    "comment": "The candidate does not demonstrate problem-solving skills related to caching in FastAPI."
+    "comment": "It does not connect the retry scenario to a solution or discuss handling repeated requests."
   },
-  "strengths": [],
+  "strengths": [
+    "Mentions checking query plans when evaluating database performance."
+  ],
   "weaknesses": [
-    "Irrelevant response to the question",
-    "Lack of understanding of caching concepts",
-    "Failure to address FastAPI and Redis integration"
+    "Does not propose an idempotency key",
+    "Does not address concurrency or database uniqueness",
+    "Does not specify what retries should return"
   ],
   "missing_concepts": [
-    "Identify types of data suitable for caching",
-    "Explain how to set up Redis with FastAPI",
-    "Discuss cache expiration strategies"
+    "Idempotency key scope and retention",
+    "Unique constraint for concurrent requests",
+    "Persisting and replaying the original outcome",
+    "Rejecting reuse of a key with a different payload",
+    "Testing retry and failure cases"
   ],
   "improvement_suggestions": [
-    "Study caching strategies and their benefits",
-    "Learn how to integrate Redis with FastAPI",
-    "Understand cache expiration and invalidation techniques"
+    "Use a client-supplied idempotency key backed by a database uniqueness constraint.",
+    "Store the transaction reference and response so retries receive a consistent result.",
+    "Define behavior for mismatched payloads and test concurrent and failure scenarios."
   ],
   "recommended_follow_up_questions": [
-    "Can you explain how you would implement Redis in a FastAPI application?",
-    "What types of data do you think are most beneficial to cache?",
-    "How would you handle cache expiration and invalidation?"
+    "How would you handle two requests with the same idempotency key arriving concurrently?",
+    "What should happen if a client reuses a key with a different payment payload?"
   ]
 }
 ```
@@ -197,17 +201,16 @@ Answer: I would add an index on the column we filter by and check the query plan
 ```json
 {
   "decision": "new_topic",
-  "rationale": "The candidate's response was completely off-track, indicating a need to explore a new topic to assess their knowledge effectively.",
-  "next_question": "Can you explain the differences between SQL and NoSQL databases, and provide scenarios where one might be preferred over the other?",
-  "topic": "Database types",
-  "category": "technical",
+  "rationale": "The response did not address retry safety or repeated-request behavior, so move to a distinct backend topic.",
+  "next_question": "An API endpoint returns a large, frequently changing list of records, and clients need to page through it reliably. Would you use offset pagination or cursor pagination, and how would you handle ordering and records changing between requests?",
+  "topic": "API pagination",
+  "category": "scenario",
   "expected_answer_points": [
-    "Define SQL and NoSQL",
-    "Discuss use cases for SQL",
-    "Discuss use cases for NoSQL",
-    "Mention performance considerations",
-    "Explain data structure differences",
-    "Provide examples of each type"
+    "Compare offset and cursor pagination, including performance and consistency trade-offs",
+    "Use a deterministic order with a unique tie-breaker",
+    "Explain how a cursor encodes or identifies the last-seen position",
+    "Consider inserts or updates during pagination and define the consistency expected",
+    "Mention validation and testing for duplicate or skipped records"
   ]
 }
 ```
@@ -217,46 +220,49 @@ Answer: I would add an index on the column we filter by and check the query plan
 ```json
 {
   "overall_score": 1,
-  "overall_evaluation": "The candidate struggled significantly with the caching question, providing an irrelevant response that did not demonstrate an understanding of the core concepts of caching, particularly in the context of FastAPI and Redis. There was a clear lack of technical accuracy and problem-solving skills, which are critical for a backend developer role. Overall, the candidate is not ready for the position at this time.",
+  "overall_evaluation": "The response showed limited applied reasoning for preventing duplicate payment transactions on client retries. It mentioned checking database query plans, but did not propose an idempotency key, explain handling concurrent requests, or specify the response to a repeated request. The answer therefore did not address the central reliability requirement of the scenario. More practice with idempotent API design and retry failure cases is needed.",
   "readiness": "not yet ready",
   "competency_scores": [
     {
-      "competency": "Technical Accuracy",
+      "competency": "Idempotent API design",
       "score": 1,
-      "comment": "The candidate did not provide a relevant or accurate response."
+      "comment": "Did not identify an idempotency key or explain how to store and replay the original outcome for repeated requests."
     },
     {
-      "competency": "Problem Solving",
+      "competency": "Concurrency and data integrity",
       "score": 1,
-      "comment": "The response did not demonstrate effective problem-solving skills."
+      "comment": "Did not address concurrent requests or use a database uniqueness constraint to prevent duplicate transactions."
     },
     {
-      "competency": "Communication Skills",
+      "competency": "Problem solving and trade-off reasoning",
       "score": 1,
-      "comment": "The candidate's communication did not address the question appropriately."
+      "comment": "The query-plan observation was not relevant to the core retry problem, and the response lacked a concrete design or retry behavior."
     }
   ],
-  "strengths": [],
+  "strengths": [
+    "Mentioned checking query plans when evaluating database performance."
+  ],
   "knowledge_gaps": [
-    "Identify types of data suitable for caching",
-    "Explain how to set up Redis with FastAPI",
-    "Discuss cache expiration strategies"
+    "Defining idempotency key scope and retention for payment requests.",
+    "Enforcing uniqueness to prevent concurrent requests with the same key from creating duplicate transactions.",
+    "Persisting and replaying the original outcome for repeated requests, and rejecting reuse of a key with a different payload.",
+    "Testing retry behavior and failure cases, including a retry after the transaction succeeds but before the client receives the response."
   ],
   "learning_plan": [
     {
-      "focus": "Caching mechanisms",
-      "action": "Study different caching strategies and their use cases, particularly in web applications.",
-      "timeframe": "2 weeks"
+      "focus": "Idempotency key design",
+      "action": "Design a payment endpoint flow specifying key scope, retention, payload comparison, stored status and response, and behavior for repeated requests.",
+      "timeframe": "Within 1 week"
     },
     {
-      "focus": "Redis integration with FastAPI",
-      "action": "Complete a tutorial on setting up Redis with FastAPI and implement a sample project.",
-      "timeframe": "3 weeks"
+      "focus": "Concurrency and persistence",
+      "action": "Implement a small endpoint exercise with a database uniqueness constraint on the idempotency key; simulate concurrent requests and verify only one transaction is created.",
+      "timeframe": "Within 2 weeks"
     },
     {
-      "focus": "Cache expiration strategies",
-      "action": "Research and summarize various cache expiration strategies and their implications.",
-      "timeframe": "1 week"
+      "focus": "Retry and failure testing",
+      "action": "Write tests for repeated requests, conflicting payloads using the same key, and a lost response after successful processing; verify the original outcome is returned without duplicate effects.",
+      "timeframe": "Within 2 weeks"
     }
   ]
 }
@@ -266,10 +272,10 @@ Answer: I would add an index on the column we filter by and check the query plan
 
 | Chain | Output mode | In | Out | Cost | Latency |
 | --- | --- | --- | --- | --- | --- |
-| A · Job description analysis | json_schema | 844 | 654 | 0.000519 | 8.14 |
-| B · Question generation | json_schema | 1213 | 264 | 0.00034035 | 4.93 |
-| C · Answer evaluation | json_schema | 1071 | 245 | 0.00030765 | 6.19 |
-| D · Follow-up | json_schema | 1125 | 108 | 0.00023355 | 2.18 |
-| E · Interview summary | json_schema | 1030 | 288 | 0.0003273 | 5.29 |
+| A · Job description analysis | json_schema | 838 | 655 | 0.0004113 | 8.42 |
+| B · Question generation | json_schema | 1246 | 502 | 0.000406675 | 6.26 |
+| C · Answer evaluation | json_schema | 1467 | 313 | 0.0003398 | 4.64 |
+| D · Follow-up | json_schema | 1202 | 229 | 0.000264675 | 5.62 |
+| E · Interview summary | json_schema | 1081 | 556 | 0.00041305 | 7.26 |
 
-Total $0.00173
+Total $0.00184

@@ -12,7 +12,7 @@ from interview_app.comparison import (
     summarize,
 )
 from interview_app.model_config import PARAMETER_GUIDE, TEMPERATURE_RANGE, GenerationParams
-from interview_app.openrouter import active_model, describe_error, get_api_key, get_capabilities, model_catalog, reserve_calls
+from interview_app.openrouter import ALLOWED_MODELS, active_model, describe_error, get_api_key, get_capabilities, model_catalog, reserve_calls
 from interview_app.question_bank import get_questions
 from interview_app.security_guard import GuardError, guard_untrusted_input
 from interview_app.ui import MAX_TOKEN_OPTIONS, profile_inputs, render_sidebar, require_api_key, show_error
@@ -44,7 +44,7 @@ with st.expander("How each parameter affects the output", icon=":material/school
 
 catalog = model_catalog()
 configured_model = active_model()
-model_options = sorted(set(catalog) | {configured_model})
+model_options = sorted(dict.fromkeys([*ALLOWED_MODELS, configured_model]))
 
 setup, configs_column = st.columns([1, 1.6], gap="large")
 with setup:

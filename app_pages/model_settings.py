@@ -2,6 +2,7 @@ import streamlit as st
 
 from interview_app.model_config import PARAM_SPECS, GenerationParams, build_request_body
 from interview_app.openrouter import (
+    ALLOWED_MODELS,
     active_model,
     current_params,
     describe_error,
@@ -59,7 +60,8 @@ else:
 # Provider and model
 # ---------------------------------------------------------------------------
 current = active_model()
-models = sorted(set(catalog) | {configured, current})
+# Only the project's approved models are offered (others are blocked by the account guardrail).
+models = sorted(dict.fromkeys([*ALLOWED_MODELS, configured, current]))
 providers = sorted({model.split("/", 1)[0] for model in models if "/" in model}, key=lambda p: provider_label(p).lower())
 current_provider = current.split("/", 1)[0]
 

@@ -5,11 +5,13 @@ Graph (one invocation per user action; state is checkpointed per interview threa
     START -> route
       route: finish requested or question limit reached -> summarize -> END
              a question is still needed                -> plan_next -> END
-             an answer is pending                      -> evaluate -> adapt -> (summarize | plan_next) -> END
+             a message is pending                      -> triage -> (END | evaluate -> adapt -> (summarize | plan_next)) -> END
              nothing asked yet                         -> opening -> END
 
 - opening   : chain B (+ vector de-duplication) generates the first question.
-- evaluate  : chain C scores the latest answer (structured Format 2 evaluation).
+- triage    : defensive prompt. Off-topic requests, clarifications, and manipulation attempts get a polite
+              in-persona reply and are not scored; only genuine answers continue.
+- evaluate  : chain C scores the latest answer (structured Format 2 evaluation, few-shot prompt).
 - adapt     : deterministic. Records the turn, updates compact memory and the difficulty.
 - plan_next : chain D chooses a follow-up or a new topic; new questions are checked for duplicates.
 - summarize : chain E writes the debrief and learning plan.
@@ -29,7 +31,7 @@ from langgraph.runtime import Runtime
 from interview_app.catalog import PrepProfile
 from interview_app.chains.base import ChainOutput
 from interview_app.chains.llm import ModelSpec
-from interview_app.chains.workflows import evaluation_chain, followup_chain, generate_unique_questions, summary_chain
+from interview_app.chains.workflows import evaluation_chain, followup_chain, generate_unique_questions, summary_chain, triage_chain
 from interview_app.vectorstore import QuestionMemory, Thresholds
 
 LEVELS = ("Easy", "Medium", "Hard")
@@ -57,6 +59,7 @@ class InterviewState(TypedDict, total=False):
     topics_covered: list[str]
     asked: list[str]
     last_evaluation: dict | None
+    last_triage: dict | None
     last_decision: dict | None
     summary: dict | None
     status: str  # awaiting_answer | needs_question | finished
@@ -259,6 +262,21 @@ def summarize(state: InterviewState, runtime: Runtime[Dependencies]) -> dict:
     return {"summary": output.data, "status": "finished", "finish_requested": False, "usage": _record(state, output)}
 
 
+def triage(state: InterviewState, runtime: Runtime[Dependencies]) -> dict:
+    """Defensive gate: only genuine answers are scored; everything else gets a polite in-persona reply."""
+    deps = runtime.context
+    payload = {"current_question": state["current"]["question"], "candidate_message": state["pending_answer"]}
+    output = triage_chain(deps.spec, _profile(state)).invoke(payload)
+    usage = _record(state, output)
+    if output.data["category"] == "answer":
+        return {"last_triage": output.data, "usage": usage}
+    return {"last_triage": output.data, "usage": usage, "pending_answer": "", "pending_flags": [], "status": "awaiting_answer"}
+
+
+def route_after_triage(state: InterviewState) -> str:
+    return "evaluate" if state.get("pending_answer") else END
+
+
 # -- routing ------------------------------------------------------------------
 
 def route_start(state: InterviewState) -> str:
@@ -267,7 +285,7 @@ def route_start(state: InterviewState) -> str:
     if state.get("finish_requested") and not state.get("pending_answer"):
         return "summarize"
     if state.get("pending_answer"):
-        return "evaluate"
+        return "triage"
     if state.get("status") == "needs_question":
         return "summarize" if len(state.get("turns", [])) >= state.get("max_questions", 5) else "plan_next"
     if not state.get("current"):
@@ -284,11 +302,13 @@ def route_after_adapt(state: InterviewState) -> str:
 def build_interview_graph(checkpointer=None):
     graph = StateGraph(InterviewState, context_schema=Dependencies)
     graph.add_node("opening", opening)
+    graph.add_node("triage", triage)
     graph.add_node("evaluate", evaluate)
     graph.add_node("adapt", adapt)
     graph.add_node("plan_next", plan_next)
     graph.add_node("summarize", summarize)
-    graph.add_conditional_edges(START, route_start, ["opening", "evaluate", "plan_next", "summarize", END])
+    graph.add_conditional_edges(START, route_start, ["opening", "triage", "plan_next", "summarize", END])
+    graph.add_conditional_edges("triage", route_after_triage, ["evaluate", END])
     graph.add_edge("opening", END)
     graph.add_edge("evaluate", "adapt")
     graph.add_conditional_edges("adapt", route_after_adapt, ["summarize", "plan_next"])
@@ -302,7 +322,7 @@ def initial_state(profile: PrepProfile, *, focus: str, topic_hint: str, company:
         "profile": asdict(profile.validated()), "focus": focus, "topic_hint": topic_hint, "company": company,
         "job_context": job_context, "max_questions": max_questions, "difficulty": profile.difficulty,
         "difficulty_path": [], "current": None, "pending_answer": "", "pending_flags": [], "finish_requested": False,
-        "turns": [], "memory_lines": [], "topics_covered": [], "asked": [], "last_evaluation": None,
+        "turns": [], "memory_lines": [], "topics_covered": [], "asked": [], "last_evaluation": None, "last_triage": None,
         "last_decision": None, "summary": None, "status": "new", "transcript": [], "usage": [],
     }
 

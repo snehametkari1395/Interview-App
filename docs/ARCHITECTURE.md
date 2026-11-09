@@ -9,7 +9,7 @@ flowchart TB
     subgraph UI["Streamlit UI (app.py + app_pages/, grouped navigation)"]
         direction LR
         P["Practice<br/>Practice room · Interview chat · Job description<br/>Structured output · Interviewer guide"]
-        D["Developer tools<br/>Model settings · Model lab<br/>Question memory · Security lab · App review"]
+        D["Developer tools<br/>Model settings · Model lab · Prompt lab<br/>Question memory · Security lab · App review"]
     end
 
     subgraph LC["LangChain / LangGraph layer (interview_app/chains/)"]
@@ -29,7 +29,7 @@ flowchart TB
     end
 
     subgraph DATA["Data"]
-        VS["vectorstore.py<br/>ChromaDB (data/chroma) + all-MiniLM-L6-v2 (local ONNX)"]
+        VS["vectorstore.py<br/>ChromaDB (data/chroma) + qwen/qwen3-embedding-8b (OpenRouter)"]
     end
 
     API[("OpenRouter API<br/>chat completions · models · key")]
@@ -75,7 +75,9 @@ flowchart LR
 stateDiagram-v2
     [*] --> route
     route --> opening: nothing asked yet
-    route --> evaluate: answer pending
+    route --> triage: message pending
+    triage --> [*]: off-topic / manipulation / clarification (polite reply, not scored)
+    triage --> evaluate: genuine answer
     route --> plan_next: question still needed (retry)
     route --> summarize: finish requested / limit reached
     opening --> [*]: first question (chain B + de-duplication)
@@ -92,6 +94,7 @@ One graph invocation per user action. State is checkpointed per interview thread
 
 | Step | Sent to the model | Not sent |
 | --- | --- | --- |
+| Defensive triage | current question, the candidate's message | history |
 | Chain C (evaluate) | current question, the answer, expected answer points, job context | earlier turns |
 | Streamed reply | the question and a compact evaluation | the answer itself, history |
 | Chain D (next question) | latest turn (answer ≤2,000 chars), previous turn (≤600 chars), one-line memories of older turns, topics covered, asked questions to avoid | full transcript |
@@ -101,8 +104,8 @@ The UI transcript is stored in graph state for display and resume, but no node e
 
 ## Security boundaries
 
-1. **Input**: `security_guard` (deterministic) at the UI boundary and again as the first step of every chain.
+1. **Input**: `security_guard` (deterministic) at the UI boundary and again as the first step of every chain; then the defensive triage prompt, which politely declines off-topic requests and override attempts before anything is scored.
 2. **Prompt**: trusted catalog values only in system prompts; untrusted text only as JSON data; canary token.
 3. **Output**: canary rejection, JSON Schema validation, benign-overflow trimming, string sanitisation; streamed text is sanitised incrementally (`SafeStream`).
-4. **Data at rest**: only generated question text and non-sensitive metadata are stored in ChromaDB; interviews live in memory for the browser session.
+4. **Data at rest**: only generated question text and non-sensitive metadata are stored in ChromaDB (only question text is sent for embedding); interviews live in memory for the browser session.
 5. **Secrets**: the API key stays server-side, is never rendered or logged, and error messages are mapped to fixed text.

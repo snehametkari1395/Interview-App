@@ -75,3 +75,10 @@ SUMMARY_SCHEMA = _object({
         "items": _object({"focus": _string(1, 120), "action": _string(5, 500), "timeframe": _string(1, 60)}),
     },
 })
+
+TRIAGE_CATEGORIES = ("answer", "clarification", "off_topic", "manipulation")
+
+TRIAGE_SCHEMA = _object({
+    "category": {"type": "string", "enum": list(TRIAGE_CATEGORIES)},
+    "reply": _string(0, 600),
+})

@@ -7,7 +7,7 @@ from interview_app.openrouter import get_api_key, reserve_calls
 from interview_app.security_guard import GuardError, guard_untrusted_input
 from interview_app.services import current_thresholds, get_question_memory, record_chain_usage
 from interview_app.ui import profile_inputs, render_sidebar, require_api_key, show_error
-from interview_app.vectorstore import DEFAULT_DUPLICATE_THRESHOLD, DEFAULT_SIMILAR_THRESHOLD, Thresholds
+from interview_app.vectorstore import DEFAULT_DUPLICATE_THRESHOLD, DEFAULT_SIMILAR_THRESHOLD, EMBEDDING_MODEL, Thresholds
 
 LABEL_COLORS = {"duplicate": "red", "similar": "orange", "new": "green"}
 
@@ -16,8 +16,8 @@ render_sidebar()
 st.badge("VECTOR DATABASE", icon=":material/database:", color="green")
 st.title("Question memory", icon=":material/database:")
 st.caption(
-    "Generated questions are embedded locally (sentence-transformers/all-MiniLM-L6-v2, Apache-2.0) and stored in ChromaDB, "
-    "so new questions can be checked for semantic repeats. Candidate answers are never stored."
+    f"Generated questions are embedded with `{EMBEDDING_MODEL}` via OpenRouter and stored in ChromaDB, "
+    "so new questions can be checked for semantic repeats. Only question text is embedded; candidate answers are never stored."
 )
 
 memory = get_question_memory()
@@ -37,7 +37,7 @@ with st.container(border=True):
     st.session_state.dedupe_thresholds = thresholds
     st.caption(
         f"Defaults {DEFAULT_DUPLICATE_THRESHOLD} / {DEFAULT_SIMILAR_THRESHOLD} were calibrated on labelled question pairs with this "
-        "embedding model: paraphrased duplicates scored 0.63–0.93, related-but-different questions 0.45–0.60. Raise the duplicate "
+        "embedding model: reworded duplicates scored 0.83–0.96, related questions 0.70–0.83, different questions 0.34–0.69. Raise the duplicate "
         "threshold if useful questions are being rejected; lower it if rewordings slip through. Thresholds are specific to the embedding model."
     )
 

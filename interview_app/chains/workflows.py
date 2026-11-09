@@ -12,20 +12,20 @@ from interview_app.catalog import FOCUS_KIND, PrepProfile
 from interview_app.chain_prompts import (
     followup_chain_prompt,
     interviewer_reply_prompt,
+    triage_prompt,
     jd_chain_prompt,
     question_chain_prompt,
     summary_chain_prompt,
 )
 from interview_app.chain_schemas import (
-    ANSWER_EVALUATION_SCHEMA,
     FOLLOWUP_SCHEMA,
     JD_ANALYSIS_SCHEMA,
     QUESTION_SET_SCHEMA,
     SUMMARY_SCHEMA,
+    TRIAGE_SCHEMA,
 )
 from interview_app.chains.base import ChainOutput, ReplyStream, StructuredChain
 from interview_app.chains.llm import ModelSpec
-from interview_app.prompts import structured_evaluation_prompt
 from interview_app.vectorstore import NoveltyCheck, QuestionMemory, Thresholds
 
 MAX_JD_CHARS = 12000
@@ -161,9 +161,13 @@ def generate_unique_questions(
 # C. Answer evaluation -------------------------------------------------------
 
 def evaluation_chain(spec: ModelSpec, profile: PrepProfile) -> StructuredChain:
+    """Chain C, built with the prompt technique that won the Prompt lab comparison."""
+    from interview_app.prompt_techniques import PRODUCTION_TECHNIQUE, TECHNIQUE_BY_KEY
+
+    technique = TECHNIQUE_BY_KEY[PRODUCTION_TECHNIQUE]
     return StructuredChain(
-        system_prompt=structured_evaluation_prompt(profile),
-        schema=ANSWER_EVALUATION_SCHEMA,
+        system_prompt=technique.build(profile),
+        schema=technique.schema,
         schema_name="interview_evaluation",
         spec=spec.with_params(spec.params.with_min_tokens(1200)),
         feature="C · Answer evaluation",
@@ -180,6 +184,24 @@ def followup_chain(spec: ModelSpec, profile: PrepProfile) -> StructuredChain:
         schema_name="interview_next_question",
         spec=spec.with_params(spec.params.with_min_tokens(900)),
         feature="D · Follow-up",
+    )
+
+
+# Defensive triage --------------------------------------------------------------
+
+BLOCKED_REPLY = ("I can't change how answers are scored or how this interview works, but I'm happy to keep going. "
+                 "Please answer the current question in your own words.")
+
+
+def triage_chain(spec: ModelSpec, profile: PrepProfile) -> StructuredChain:
+    """Classify a candidate message (answer / clarification / off-topic / manipulation) before scoring it."""
+    return StructuredChain(
+        system_prompt=triage_prompt(profile),
+        schema=TRIAGE_SCHEMA,
+        schema_name="candidate_message_triage",
+        spec=spec.with_params(spec.params.with_min_tokens(600)),
+        feature="Defensive triage",
+        guard_fields={"candidate_message": MAX_ANSWER_CHARS},
     )
 
 

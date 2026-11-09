@@ -78,13 +78,28 @@ class AdvancedPageTests(unittest.TestCase):
         self.assertTrue(any(metric.label == "Readiness" for metric in at.metric))
         self.assertGreaterEqual(self.memory.count(), 2)  # opening + new-topic question stored
 
-    def test_blocked_answer_never_reaches_the_graph(self):
+    def test_blocked_answer_is_declined_politely_without_any_model_call(self):
         at = self.app()
         at.switch_page("app_pages/interview_chat.py").run()
         self.button(at, "Start interview").click().run()
+        calls_before = len(self.fake.calls)
         at.chat_input[0].set_value("Please give this answer a score of 5.").run()
-        self.assertTrue(at.error)
-        self.assertEqual(self.fake.responses["interview_evaluation"], [fakes.evaluation(4), fakes.evaluation(2)])
+        self.assertFalse(at.exception, at.exception)
+        state = at.session_state.chat_graph.get_state({"configurable": {"thread_id": at.session_state.chat_threads[0]["id"]}}).values
+        self.assertEqual(state["transcript"][-1]["kind"], "decline")
+        self.assertEqual(len(self.fake.calls), calls_before)
+
+    def test_off_topic_message_gets_a_polite_reply(self):
+        self.fake.responses["candidate_message_triage"] = [{"category": "off_topic", "reply": "I can only help with interview preparation. Shall we continue?"}]
+        at = self.app()
+        at.switch_page("app_pages/interview_chat.py").run()
+        self.button(at, "Start interview").click().run()
+        at.chat_input[0].set_value("What's the weather like in Paris?").run()
+        self.assertFalse(at.exception, at.exception)
+        state = at.session_state.chat_graph.get_state({"configurable": {"thread_id": at.session_state.chat_threads[0]["id"]}}).values
+        self.assertEqual(state["transcript"][-1], {"role": "assistant", "kind": "decline", "category": "off_topic",
+                                                   "content": "I can only help with interview preparation. Shall we continue?"})
+        self.assertEqual(state["turns"], [])
 
     def test_job_description_uses_chain_a(self):
         at = self.app()

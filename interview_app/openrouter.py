@@ -41,7 +41,11 @@ API_BASE = "https://openrouter.ai/api/v1"
 API_URL = f"{API_BASE}/chat/completions"
 MODELS_URL = f"{API_BASE}/models"
 KEY_URL = f"{API_BASE}/key"
-DEFAULT_MODEL = "openai/gpt-4o-mini"
+# Models approved for this project (the account's OpenRouter guardrail allows only these).
+ALLOWED_MODELS = ("openai/gpt-6-luna", "anthropic/claude-sonnet-5.5", "openai/gpt-6.1-sol")
+DEFAULT_MODEL = ALLOWED_MODELS[0]  # recommended default
+ALLOWED_EMBEDDING_MODELS = ("qwen/qwen3-embedding-8b", "openai/text-embedding-3-small", "openai/text-embedding-3-large")
+DEFAULT_EMBEDDING_MODEL = ALLOWED_EMBEDDING_MODELS[0]  # recommended default
 REQUEST_TIMEOUT_S = 90.0
 
 RETRYABLE_STATUS = frozenset({408, 429, 500, 502, 503, 504})

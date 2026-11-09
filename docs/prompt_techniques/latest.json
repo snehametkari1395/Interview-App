@@ -1,0 +1,1341 @@
+{
+  "meta": {
+    "run_at": "2026-11-09T09:31:41+00:00",
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "runs": 2,
+    "cases": 7
+  },
+  "records": [
+    {
+      "technique": "zero_shot",
+      "case": "backend-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.58,
+      "output_tokens": 512,
+      "cost_usd": 0.000327,
+      "summary": "A strong, practical idempotency design that covers key validation, duplicate requests, and concurrent retries. It would benefit from clarifying transaction boundaries and how payment-provider calls and key expiration are handled.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "backend-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.19,
+      "output_tokens": 522,
+      "cost_usd": 0.000332,
+      "summary": "The answer presents a solid idempotency-key design that addresses duplicate charges, request mismatches, and replaying results. It would be stronger with more detail on concurrency, transaction boundaries, and coordinating with an external payment provider.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "analyst-partial",
+      "run": 1,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 4.76,
+      "output_tokens": 324,
+      "cost_usd": 0.0002268,
+      "summary": "The candidate correctly defines the mean and median, but gives little guidance on when the median is preferable. The answer is accurate but incomplete for the question.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "analyst-partial",
+      "run": 2,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.67,
+      "output_tokens": 413,
+      "cost_usd": 0.0002713,
+      "summary": "The candidate correctly defines the mean and median, but does not explain when the median is preferable. The answer is accurate but incomplete for the question.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "finance-weak",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.3,
+      "output_tokens": 385,
+      "cost_usd": 0.0002563,
+      "summary": "The answer proposes a cost-control action but does not explain how to analyse the variance or report it. It is too vague to demonstrate the core skills expected of a Financial Analyst.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "finance-weak",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.54,
+      "output_tokens": 556,
+      "cost_usd": 0.0003418,
+      "summary": "The answer offers a generic cost-cutting response but does not explain how to investigate or report the variance. It does not demonstrate the analysis expected of a Financial Analyst.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "hr-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 5,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.13,
+      "output_tokens": 596,
+      "cost_usd": 0.0003702,
+      "summary": "The candidate responds tactfully while making a clear case for keeping the process structured. They offer practical ways to save time without abandoning consistency and explain how they would support the recommendation with data.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "hr-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.01,
+      "output_tokens": 619,
+      "cost_usd": 0.0003817,
+      "summary": "The answer is tactful and offers practical ways to preserve consistency without ignoring the hiring manager’s time concern. It would be stronger if it avoided implying that outcome data from structured hires alone demonstrates causation and included a plan for calibrating the scorecard.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "confident-wrong",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 4.43,
+      "output_tokens": 409,
+      "cost_usd": 0.0002737,
+      "summary": "The answer substantially misinterprets the p-value and treats statistical significance as proof of practical value. It recommends an immediate rollout without checking the effect size, uncertainty, or experiment validity.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "confident-wrong",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.04,
+      "output_tokens": 427,
+      "cost_usd": 0.0002827,
+      "summary": "The candidate substantially misinterprets the p-value and treats statistical significance as proof of practical importance. They recommend an immediate rollout without checking the effect size, test design, or uncertainty.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "verbose-shallow",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.56,
+      "output_tokens": 619,
+      "cost_usd": 0.0003792,
+      "summary": "The answer emphasizes collaboration and communication but does not explain how to make the actual prioritization decision. It lacks concrete criteria, evidence, and a plan for addressing rising reliability incidents alongside the customer request.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "verbose-shallow",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 4.76,
+      "output_tokens": 416,
+      "cost_usd": 0.0002777,
+      "summary": "The answer signals collaborative intent but stays generic and does not explain how to make the trade-off between a major customer request and rising reliability incidents. It lacks a decision framework, concrete evidence, and a clear next step.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "terse-correct",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.42,
+      "output_tokens": 444,
+      "cost_usd": 0.0002877,
+      "summary": "The candidate clearly explains the main distinction: processes have separate memory spaces, while threads within a process share memory. They also mention practical trade-offs, though the claim about a thread crash terminating the process could use qualification.",
+      "working": {}
+    },
+    {
+      "technique": "zero_shot",
+      "case": "terse-correct",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 5,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.53,
+      "output_tokens": 420,
+      "cost_usd": 0.0002757,
+      "summary": "The answer clearly explains the key distinction: processes have separate memory spaces, while threads within a process share memory. It also notes practical trade-offs around overhead, synchronization, and failures.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "backend-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 5,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.95,
+      "output_tokens": 338,
+      "cost_usd": 0.00018342,
+      "summary": "A complete, practical design that addresses duplicate charges, conflicting key reuse, concurrent retries, and key retention. The atomicity and uniqueness guarantees are especially well specified.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "backend-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 5,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.15,
+      "output_tokens": 272,
+      "cost_usd": 0.00015042,
+      "summary": "A complete, practical idempotency design that addresses atomicity, conflicting payloads, in-flight retries, response replay, and key expiry. It directly satisfies the requirement to prevent duplicate charges.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "analyst-partial",
+      "run": 1,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.19,
+      "output_tokens": 332,
+      "cost_usd": 0.00017974,
+      "summary": "The candidate correctly defines the mean and median, but does not explain when the median is preferable. The answer is clear but too brief to demonstrate practical understanding.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "analyst-partial",
+      "run": 2,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.31,
+      "output_tokens": 402,
+      "cost_usd": 0.00021474,
+      "summary": "The candidate gives basically correct definitions of the mean and median, but does not explain when the median is preferable. A simple example involving skewed data or outliers would make the answer complete.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "finance-weak",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.49,
+      "output_tokens": 377,
+      "cost_usd": 0.00020215,
+      "summary": "The answer identifies cost reduction as one possible response but does not analyse the variance or explain how to report it. It offers no evidence, prioritization, or practical example.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "finance-weak",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.64,
+      "output_tokens": 350,
+      "cost_usd": 0.00018865,
+      "summary": "The answer identifies cost reduction as a possible response but does not explain how to analyse the overspend or report it. It offers no evidence-based diagnosis, forecast, or practical example.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "hr-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 5,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.47,
+      "output_tokens": 520,
+      "cost_usd": 0.00027447,
+      "summary": "A practical, persuasive response that preserves a consistent, job-related assessment while addressing the manager’s time concern. It combines a clear rationale with specific process choices and evidence to influence the manager.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "hr-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.61,
+      "output_tokens": 533,
+      "cost_usd": 0.00028097,
+      "summary": "A practical, evidence-informed response that preserves consistency while addressing the manager’s time concern. It would be stronger if it first aligned the interview questions to the role and treated retention data cautiously rather than implying structured hiring caused the outcomes.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "confident-wrong",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.24,
+      "output_tokens": 401,
+      "cost_usd": 0.000373925,
+      "summary": "The answer misinterprets the p-value and treats statistical significance as proof of both a meaningful effect and guaranteed product benefit. It recommends an immediate rollout without checking the estimated effect, uncertainty, or experiment validity.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "confident-wrong",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.08,
+      "output_tokens": 376,
+      "cost_usd": 0.00020215,
+      "summary": "The answer misinterprets the p-value, equates statistical significance with practical importance, and recommends an immediate rollout without checking the experiment or business impact.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "verbose-shallow",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.91,
+      "output_tokens": 417,
+      "cost_usd": 0.000383425,
+      "summary": "The answer signals useful values—data, customer focus, collaboration, and transparency—but stays generic and does not make a concrete prioritization decision. It lacks the trade-offs and risk controls expected for a senior-level scenario.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "verbose-shallow",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.12,
+      "output_tokens": 364,
+      "cost_usd": 0.00019627,
+      "summary": "The answer signals collaboration and customer focus, but offers no concrete decision framework for prioritising a major customer request against rising reliability risk. It does not establish trade-offs, decision criteria, or measurable outcomes.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "terse-correct",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 4.13,
+      "output_tokens": 294,
+      "cost_usd": 0.00031755,
+      "summary": "Accurately explains the key distinction in memory ownership and identifies practical implications of threads. A brief example or clarification that processes are independently executing programs would make it more complete.",
+      "working": {}
+    },
+    {
+      "technique": "few_shot",
+      "case": "terse-correct",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 5,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 3.12,
+      "output_tokens": 213,
+      "cost_usd": 0.00012042,
+      "summary": "Accurately explains the core distinction and gives useful implications for performance, synchronization, and failure isolation.",
+      "working": {}
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "backend-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 8.66,
+      "output_tokens": 893,
+      "cost_usd": 0.000547,
+      "summary": "A strong, practical design that addresses duplicate requests and key reuse clearly. It would be more robust with explicit handling of external processor failures and a justified retention period.",
+      "working": {
+        "reasoning": "Key points for a strong answer: require an idempotency key; atomically prevent duplicate payment creation under concurrent requests; define behavior for reused keys and in-progress requests; preserve a retryable result; and account for external payment-provider failures and key retention. The candidate covers key storage, request hashing, a unique constraint, returning the saved response, rejecting a changed body, and an in-progress response. The atomic transaction is a sound approach for local database state, though it does not by itself make an external provider charge atomic with the databa"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "backend-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": false,
+      "abs_error": 1,
+      "latency_s": 10.28,
+      "output_tokens": 1012,
+      "cost_usd": 0.0006065,
+      "summary": "The answer gives a clear, practical idempotency design for ordinary retries and concurrent requests. It misses important payment-specific failure handling and does not justify whether 24-hour key retention is safe.",
+      "working": {
+        "reasoning": "1. A strong answer should define an idempotency key, persist it durably with a request fingerprint and result, and enforce uniqueness under concurrent requests. 2. It should explain replay behavior for a matching request and reject reuse of a key with a different payload. 3. It should account for in-progress requests, crashes, and the external payment processor boundary, typically by using the processor's idempotency support plus durable state and recovery or reconciliation. 4. It should choose key scope and retention so that a delayed retry cannot become a new charge. The candidate covers key"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "analyst-partial",
+      "run": 1,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 8.31,
+      "output_tokens": 635,
+      "cost_usd": 0.0004112,
+      "summary": "The candidate gives basically correct definitions but does not identify when the median is a better choice. A simple example involving skewed data or an outlier would make the answer complete.",
+      "working": {
+        "reasoning": "Key points for a strong answer: define the mean as the sum of values divided by the number of values; define the median as the middle value after sorting (or the average of the two middle values for an even-sized dataset); explain that the median is often preferred when data are skewed or contain outliers. The candidate correctly describes the mean generally and the median for an odd-sized dataset. The even-sized case is omitted, and the candidate does not explain when the median is preferable, saying only that they would use it sometimes. The definitions are sound but incomplete, so the techn"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "analyst-partial",
+      "run": 2,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 8.54,
+      "output_tokens": 560,
+      "cost_usd": 0.0003737,
+      "summary": "The candidate correctly distinguishes the mean from the median at a basic level. They do not explain when the median is preferable, which is the main applied part of the question.",
+      "working": {
+        "reasoning": "A strong answer should define the mean as the sum of values divided by their count, define the median as the middle value after sorting (or the average of the two middle values for an even number of observations), and explain that the median is preferable when outliers or skew make the mean unrepresentative, ideally with a simple example. The candidate gives broadly correct definitions, though the mean is described less precisely as an average and the even-count case is omitted. The candidate says they would use the median “sometimes” but gives no reason or example, so the key selection princi"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "finance-weak",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.12,
+      "output_tokens": 736,
+      "cost_usd": 0.0004608,
+      "summary": "The answer suggests reducing spending but does not explain how to investigate or report the overspend. It lacks the analysis and concrete actions expected for this scenario.",
+      "working": {
+        "reasoning": "Key points for a strong answer: validate the budget and actuals; quantify and identify the main variance drivers (such as timing, volume, price, or one-off costs); consult the business unit; update the full-year forecast; recommend targeted actions and explain risks; report the findings clearly with owners and follow-up. The candidate's answer offers only a broad cost-cutting directive. It does not analyze the variance, distinguish temporary from ongoing drivers, forecast the year-end impact, or describe reporting or controls. The suggestion to reduce spending is not inherently wrong, but it i"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "finance-weak",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.39,
+      "output_tokens": 791,
+      "cost_usd": 0.0004883,
+      "summary": "The candidate offers a blunt cost-cutting response but does not explain how they would analyse or report the 12% variance. Most of the core steps are missing.",
+      "working": {
+        "reasoning": "Key points for a strong answer: verify the actuals and budget, quantify and break down the variance by cause (such as timing, volume, price, or one-off costs), assess whether it is controllable, update the year-end forecast, and report the drivers, implications, risks, and possible actions clearly. The candidate’s suggestion to reduce spending is a possible response, but it does not explain how to investigate the variance or report it. It also does not distinguish necessary spending from avoidable costs or consider the effect on delivery. The answer is understandable but too brief to demonstra"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "hr-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 9.77,
+      "output_tokens": 812,
+      "cost_usd": 0.000507,
+      "summary": "A strong, practical response that preserves structured assessment while addressing the manager’s time concern and offering evidence to influence them. It would be more complete with explicit documentation and careful qualification of the data claim.",
+      "working": {
+        "reasoning": "A strong answer should acknowledge the manager’s perspective, explain why consistency matters for fair and job-related assessment, propose a practical alternative that preserves structure, and show how to influence the manager with evidence while maintaining a clear process. The candidate covers acknowledgment, bias and legal risk, consistent competency questions, anchored scorecards, independent scoring, and a time-saving adjustment. They also propose using organizational data to persuade the manager. The answer is practical and well organized. It could be stronger by mentioning role-related "
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "hr-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 9.06,
+      "output_tokens": 819,
+      "cost_usd": 0.0005105,
+      "summary": "The candidate balances respect for the hiring manager with a clear case for consistent assessment, then offers a workable way to save time without abandoning structure. The answer is strong and concrete, with a small opportunity to strengthen how evidence is used.",
+      "working": {
+        "reasoning": "Key points for a strong answer: acknowledge the manager’s perspective; explain why consistent, job-related assessment supports fairness and reduces bias; offer a practical alternative that preserves structure; describe how to evaluate candidates consistently; and influence the manager with clear evidence or a business rationale. The candidate covers the acknowledgment, fairness and legal-risk rationale, a shared set of competency questions, anchored scorecard, independent scoring, and a time-saving compromise. The retention and offer-acceptance data is a concrete influencing tactic, though the"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "confident-wrong",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.62,
+      "output_tokens": 676,
+      "cost_usd": 0.0004358,
+      "summary": "The answer makes a consequential error in interpreting the p-value and treats statistical significance as proof of a practically meaningful effect. It recommends rollout without the evidence needed to support that decision.",
+      "working": {
+        "reasoning": "Key points for a strong answer: explain that p = 0.03 is the probability, assuming the null hypothesis and test assumptions hold, of observing results at least this extreme; it is not a 97% probability the button works. Distinguish statistical significance from effect size or business importance, and ground a recommendation in the estimated lift, uncertainty, experiment quality, and potential risks. The candidate recognizes the conventional 0.05 threshold, but misinterprets the p-value as the probability the treatment is better and as confidence it will increase conversion. They also incorrect"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "confident-wrong",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 4.76,
+      "output_tokens": 608,
+      "cost_usd": 0.0004018,
+      "summary": "The answer substantially misinterprets the p-value and treats statistical significance as proof of both improvement and business value. Its immediate ship recommendation is not supported without effect-size, uncertainty, and experiment-quality checks.",
+      "working": {
+        "reasoning": "A strong answer should explain that p = 0.03 is the probability, assuming the null hypothesis and test assumptions, of observing results at least this extreme; it is not the probability the button is better. It should distinguish statistical significance from practical impact, consider the estimated effect and uncertainty, and recommend checking experiment quality and relevant guardrails before deciding whether to ship. The candidate incorrectly interprets the p-value as a 97% probability of improvement and as evidence of a meaningful effect. They recommend immediate rollout without discussing"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "verbose-shallow",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 10.09,
+      "output_tokens": 803,
+      "cost_usd": 0.0005005,
+      "summary": "The answer signals sound general instincts around customer value, reliability, and collaboration, but does not explain how to choose between the competing priorities. It needs explicit criteria, a decision or sequence, and measurable outcomes.",
+      "working": {
+        "reasoning": "A strong senior-level answer should: (1) assess reliability incidents by severity, frequency, customer impact, and risk; (2) evaluate the requested feature’s value and strategic importance, including whether it benefits other customers; (3) make an explicit, justified trade-off or sequence the work, with risks and mitigations; (4) involve relevant stakeholders without substituting consensus for a decision; and (5) define communication and measurable follow-up outcomes. The candidate mentions data, customer focus, stakeholder alignment, and balancing value with quality, but only at a slogan lev"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "verbose-shallow",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 10.37,
+      "output_tokens": 825,
+      "cost_usd": 0.0005115,
+      "summary": "The answer signals collaboration and awareness that customer value must be balanced against quality, but it does not provide a usable prioritization decision. It lacks evidence, explicit trade-offs, risk handling, and measurable outcomes.",
+      "working": {
+        "reasoning": "A strong senior-level answer should compare the feature’s customer and business value with the severity, scope, and trajectory of reliability incidents; use evidence such as affected users, SLO breaches, revenue or retention exposure, and engineering effort; make an explicit prioritization decision and explain its trade-offs; account for risks and contingencies; align stakeholders; and define measurable outcomes or a review point. The candidate partially covers stakeholder collaboration, customer focus, and balancing value with quality. They do not identify relevant data, assess incident sever"
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "terse-correct",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.24,
+      "output_tokens": 544,
+      "cost_usd": 0.0003675,
+      "summary": "A clear, accurate explanation of the main difference and a practical consequence of shared memory. A simple example would make it more complete.",
+      "working": {
+        "reasoning": "Key points for this question at an easy level are: (1) a process has its own memory space, (2) threads execute within a process and share its memory, and (3) this sharing makes threads relatively lightweight but means coordination may require synchronization. The answer covers all three. It also notes that a thread failure can bring down its process, which is a useful general observation, though the effect depends on the kind of failure. No example is given, but the core distinction is clear and correct."
+      }
+    },
+    {
+      "technique": "chain_of_thought",
+      "case": "terse-correct",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.28,
+      "output_tokens": 481,
+      "cost_usd": 0.000336,
+      "summary": "The answer clearly explains the core memory and execution distinction and adds relevant implications. It is accurate and concise, though it does not include a concrete example.",
+      "working": {
+        "reasoning": "Key points for a strong answer: a process has its own memory space; threads are execution units within a process and share that process's memory; this sharing makes coordination and synchronization important. A useful additional distinction is that threads are generally lighter-weight to create and switch between, and a thread failure can affect its process. The candidate covers all of these points. The crash statement is a reasonable generalization, though the exact outcome depends on the failure. No example is given, but one is not necessary to answer this direct comparison."
+      }
+    },
+    {
+      "technique": "role_rubric",
+      "case": "backend-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.69,
+      "output_tokens": 513,
+      "cost_usd": 0.00026727,
+      "summary": "The candidate proposes a sound idempotency design that prevents duplicate payment creation and handles key reuse consistently. The answer is well structured, though it leaves some important concurrency and key-scope details unspecified.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "backend-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.12,
+      "output_tokens": 548,
+      "cost_usd": 0.00028477,
+      "summary": "The candidate proposes a sound idempotency-key design with request validation, durable response replay, and database-enforced uniqueness. The answer is concise and practical, though it leaves important payment-processing and in-flight retry details unspecified.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "analyst-partial",
+      "run": 1,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 8.05,
+      "output_tokens": 484,
+      "cost_usd": 0.00034,
+      "summary": "The candidate gives basic, mostly correct definitions of the mean and median. They do not explain when the median is preferable, which is a central part of the question.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "analyst-partial",
+      "run": 2,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 5.59,
+      "output_tokens": 399,
+      "cost_usd": 0.0002975,
+      "summary": "The candidate correctly defines the mean and median, but does not explain when the median is preferable. The answer is clear but too brief to demonstrate how the choice applies to data.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "finance-weak",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.02,
+      "output_tokens": 486,
+      "cost_usd": 0.00034,
+      "summary": "The answer identifies reducing future spending as a possible response, but does not explain how to analyse the 12% variance or report it. It is too brief to show sound judgment about causes, forecast impact, or appropriate corrective actions.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "finance-weak",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.44,
+      "output_tokens": 570,
+      "cost_usd": 0.000382,
+      "summary": "The answer recognizes that spending may need to be reduced, but it jumps to a recommendation without analysing the variance or explaining how to report it. It does not address causes, forecast impact, or business-unit priorities.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "hr-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.92,
+      "output_tokens": 643,
+      "cost_usd": 0.00033231,
+      "summary": "The candidate gives a practical, persuasive response that preserves structured and consistent assessment while addressing the manager’s time concern. The approach is well supported, though the proposed hiring and retention data would need careful interpretation to avoid implying causation.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "hr-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.53,
+      "output_tokens": 490,
+      "cost_usd": 0.00025581,
+      "summary": "The candidate gives a practical, evidence-oriented response that preserves consistency while addressing the manager’s likely concern about time. The approach is well structured, though it could better explain how to handle continued resistance and ensure the process is job-related and accessible to candidates.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "confident-wrong",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 1,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 10.08,
+      "output_tokens": 550,
+      "cost_usd": 0.0003771,
+      "summary": "The candidate misinterprets the p-value as the probability the button is better and treats statistical significance as evidence of a practically meaningful effect. The immediate ship recommendation is unsupported by the information given.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "confident-wrong",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 12.19,
+      "output_tokens": 570,
+      "cost_usd": 0.0003871,
+      "summary": "The answer recognizes the conventional 0.05 threshold but fundamentally misinterprets the p-value and treats statistical significance as proof of a meaningful, deployable benefit. Its immediate rollout recommendation is unsupported by the information provided.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "verbose-shallow",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.62,
+      "output_tokens": 488,
+      "cost_usd": 0.000373175,
+      "summary": "The answer names relevant principles—customer focus, data, reliability, and stakeholder alignment—but does not explain how to choose between the feature request and rising incidents. It offers no decision criteria, concrete trade-offs, or measurable next steps.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "verbose-shallow",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.89,
+      "output_tokens": 474,
+      "cost_usd": 0.00024761,
+      "summary": "The answer signals sound general principles—data, customer focus, collaboration, and transparency—but does not explain how to choose between the feature request and rising reliability risk. It offers no decision criteria, trade-offs, or measurable next steps.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "terse-correct",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.91,
+      "output_tokens": 525,
+      "cost_usd": 0.0003625,
+      "summary": "The answer clearly explains the main distinction: processes have separate memory spaces, while threads within a process share memory. It also gives relevant consequences, with only minor qualification needed around the generalizations about cost and crashes.",
+      "working": {}
+    },
+    {
+      "technique": "role_rubric",
+      "case": "terse-correct",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 5,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 4.67,
+      "output_tokens": 316,
+      "cost_usd": 0.000258,
+      "summary": "The candidate clearly distinguishes processes by their separate memory spaces and threads by their shared memory within a process. They also give relevant consequences: lower overhead for threads, synchronization needs, and shared failure impact.",
+      "working": {}
+    },
+    {
+      "technique": "self_critique",
+      "case": "backend-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": false,
+      "abs_error": 1,
+      "latency_s": 13.17,
+      "output_tokens": 910,
+      "cost_usd": 0.00046635,
+      "summary": "The candidate proposes a useful idempotency-key mechanism, including a unique constraint, replaying the original response, and rejecting key reuse with a different request. The design needs stronger treatment of external processor failures, key scope and retention, and recovery when processing is still underway.",
+      "working": {
+        "draft_assessment": "Draft score: 3/5 — The answer gives a solid idempotency-key design with duplicate detection and request-mismatch handling, but does not address the key failure modes around an external payment processor or the limited retention period.",
+        "critique": "A 3 is appropriately calibrated: the answer is concrete and handles concurrent requests at a basic level, so it is stronger than a generic response. However, treating the payment and stored response as one database transaction does not make an external processor charge atomic with local state; provider-side idempotency and recovery for uncertain outcomes are important omissions. A fixed 24-hour expiry can also permit a later retry to charge again."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "backend-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": false,
+      "abs_error": 1,
+      "latency_s": 11.62,
+      "output_tokens": 944,
+      "cost_usd": 0.00048335,
+      "summary": "The design handles repeated API requests thoughtfully and defines useful conflict behavior. It does not fully address the boundary between the application database and the payment processor, so it cannot yet substantiate the guarantee that a customer is never charged twice.",
+      "working": {
+        "draft_assessment": "3/5 — The answer covers the core idempotency pattern well, but its database transaction cannot by itself guarantee exactly-once charging through an external payment processor, and a 24-hour expiry weakens the claim that retries never double-charge.",
+        "critique": "This score is appropriately calibrated: the candidate gives concrete mechanisms—request hashing, a unique constraint, stored responses, and defined behavior for key reuse and concurrent processing—so the answer is stronger than a generic response. However, the question concerns payments, where the external charge and local database commit are not one atomic transaction; omitting processor-side idempotency and recovery from partial failures is a material gap. The fixed expiry also needs qualification."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "analyst-partial",
+      "run": 1,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.62,
+      "output_tokens": 552,
+      "cost_usd": 0.00028667,
+      "summary": "The candidate gives correct, concise definitions of the mean and median. The answer does not explain that the median is often more representative when data are skewed or contain outliers.",
+      "working": {
+        "draft_assessment": "3/5 — The candidate correctly defines the mean and median, but does not explain when the median is preferable.",
+        "critique": "The draft is appropriately calibrated: the definitions are correct, so a low score would be too harsh, but the answer omits the key reason to report the median. No factual error or additional correct point was overlooked."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "analyst-partial",
+      "run": 2,
+      "expected": [
+        2,
+        3
+      ],
+      "ok": true,
+      "score": 3,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 4.53,
+      "output_tokens": 551,
+      "cost_usd": 0.00028617,
+      "summary": "The candidate gives correct basic definitions but does not identify a useful condition for choosing the median. A simple example involving skew or an outlier would make the answer complete.",
+      "working": {
+        "draft_assessment": "3/5 — The candidate correctly distinguishes the mean from the median, but does not explain why or when the median is preferable.",
+        "critique": "The draft is appropriately calibrated: the core definitions are correct, and the answer is not wrong, but the question explicitly asks when to report the median. The vague phrase “sometimes” omits the key point that the median is less affected by extreme values and can better represent a skewed distribution."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "finance-weak",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.74,
+      "output_tokens": 658,
+      "cost_usd": 0.00033958,
+      "summary": "The answer identifies a possible response—reducing spending—but does not analyze why the business unit is over budget or explain how to communicate the findings. It is too generic for a practical mid-level question.",
+      "working": {
+        "draft_assessment": "Draft score: 2/5 — The answer recognizes that spending may need attention, but it does not explain how to investigate or report the variance.",
+        "critique": "A score of 2 is appropriately calibrated: the response is relevant to cost control but skips the requested analysis and reporting, and a blanket instruction to spend less could overlook timing, business needs, or inaccurate assumptions. It does not provide a concrete example or justification."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "finance-weak",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 7.36,
+      "output_tokens": 652,
+      "cost_usd": 0.00033658,
+      "summary": "The response identifies spending restraint as a possible action but does not answer how to analyse or report the variance. It needs a fact-based investigation and a quantified forecast before recommending corrective measures.",
+      "working": {
+        "draft_assessment": "Draft score: 2/5. The answer suggests a cost-control response, but it does not explain how to investigate the 12% variance, quantify its impact on the year-end forecast, or report it.",
+        "critique": "A score of 2 is appropriately calibrated: the answer is relevant in that it proposes reducing spending, but it jumps to a remedy without establishing the causes or whether the overspend is temporary, recurring, or justified. It also omits any concrete analysis or communication approach, so a 3 would be too generous."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "hr-strong",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 13.85,
+      "output_tokens": 766,
+      "cost_usd": 0.0003944,
+      "summary": "The response balances respect for the hiring manager with a clear case for consistent, job-related evaluation. Its proposed streamlined process is actionable, with a minor gap around diagnosing the manager’s concern and carefully interpreting the cited data.",
+      "working": {
+        "draft_assessment": "Score 4: The answer proposes a practical, fair alternative to skipping structure and addresses the manager’s likely time concern, though it could better explore the manager’s rationale and qualify the use of outcome data.",
+        "critique": "A 4 is appropriately calibrated: this is specific and well-organised rather than generic. The candidate gives concrete process steps and a constructive way to influence the manager; the main limitation is that retention and offer-acceptance data should be interpreted cautiously and do not by themselves show that structured interviews caused better outcomes."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "hr-strong",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 13.95,
+      "output_tokens": 801,
+      "cost_usd": 0.0004119,
+      "summary": "The candidate balances respect for the hiring manager with a clear, workable process that supports consistent and fair assessment. The answer would be stronger with a brief step to agree on role-specific competencies and with care not to overstate what acceptance or retention data can prove.",
+      "working": {
+        "draft_assessment": "4/5 — The answer offers a practical, fair alternative to abandoning structure and explains its value, though it could better address how to align the manager on job-related competencies and use the proposed data cautiously.",
+        "critique": "A 4 is appropriate for this medium-difficulty scenario: the response is specific and actionable, not merely textbook. It addresses manager buy-in respectfully, consistent questions and scoring, time constraints, and evidence; it does not establish that the cited hiring metrics demonstrate the effectiveness of structured interviews, so a 5 would be too generous."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "confident-wrong",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 9.58,
+      "output_tokens": 733,
+      "cost_usd": 0.00050155,
+      "summary": "The candidate treats p = 0.03 as a 97% probability of success and equates statistical significance with business importance. They should explain the result conditionally, quantify the estimated impact and uncertainty, and consider test validity before recommending rollout.",
+      "working": {
+        "draft_assessment": "Draft score: 2/5 — The answer recognizes the conventional 0.05 threshold but fundamentally misinterprets the p-value and makes an unsupported recommendation to ship immediately.",
+        "critique": "A score of 2 is appropriately calibrated: the candidate addresses the scenario, but the central statistical interpretation is incorrect. The p-value is not the probability the button is better, and statistical significance does not establish a large or practically meaningful effect. The immediate rollout recommendation also overlooks uncertainty and test quality; the answer does not give enough correct reasoning to merit a 3."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "confident-wrong",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 11.09,
+      "output_tokens": 803,
+      "cost_usd": 0.00041258,
+      "summary": "The answer notices that the result passes a commonly used significance threshold, but draws conclusions that the p-value does not support. It should distinguish statistical evidence from the probability that the feature works and from whether the measured effect is valuable enough to ship.",
+      "working": {
+        "draft_assessment": "2/5 — The answer recognizes that p = 0.03 is below a conventional 0.05 threshold, but misinterprets it as a 97% probability of success and recommends shipping without assessing effect size or uncertainty.",
+        "critique": "A score of 2 is appropriate: the candidate identifies the conventional significance threshold, which is relevant, but the central interpretation of the p-value is incorrect. The recommendation also treats statistical significance as proof of a meaningful benefit and omits basic checks before acting; scoring higher would be too lenient."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "verbose-shallow",
+      "run": 1,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.23,
+      "output_tokens": 755,
+      "cost_usd": 0.00051405,
+      "summary": "The answer acknowledges the competing concerns and the importance of stakeholder alignment, but remains generic. It does not state what the team should do next or how to evaluate the trade-off.",
+      "working": {
+        "draft_assessment": "Draft score: 2/5. The answer gestures toward collaboration and balancing customer value with reliability, but gives no concrete prioritization method, trade-off, or decision under the stated conflict.",
+        "critique": "A 2 is appropriate rather than a 3: the candidate recognizes both customer value and quality, so the answer is relevant, but mostly relies on generic business language. It does not explain how incident severity, customer impact, business risk, or urgency would change the decision, nor how they would manage the largest customer's expectations."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "verbose-shallow",
+      "run": 2,
+      "expected": [
+        1,
+        2
+      ],
+      "ok": true,
+      "score": 2,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 6.84,
+      "output_tokens": 828,
+      "cost_usd": 0.0004252,
+      "summary": "The candidate signals awareness that customer value and product quality both matter, and emphasizes cross-functional communication. The response does not explain what the team should do next or how to choose and validate that choice.",
+      "working": {
+        "draft_assessment": "Draft score: 2/5 — The answer recognizes the need to balance customer value, reliability, and stakeholder alignment, but offers no concrete decision criteria, trade-off, or execution plan.",
+        "critique": "A 2 is appropriate for this hard question: the answer is directionally relevant and contains no clear factual error, but its generic language does not resolve the conflict or show how the candidate would make a decision. It mentions data and collaboration, but does not specify which data, how incident severity affects prioritization, or how to manage the largest customer's expectations."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "terse-correct",
+      "run": 1,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 8.59,
+      "output_tokens": 574,
+      "cost_usd": 0.000419175,
+      "summary": "The candidate accurately describes process memory isolation and thread memory sharing, with useful implications for resource costs, synchronization, and failure containment. A brief example would make the explanation more complete.",
+      "working": {
+        "draft_assessment": "4/5 — The answer clearly explains that processes have separate memory spaces while threads within a process share memory, and notes practical implications for cost, synchronization, and failures.",
+        "critique": "A score of 4 is appropriate for this easy question: the explanation is accurate and covers the main distinction and consequences. It is concise but does not give a concrete example, so a 5 would overstate its completeness for the rubric."
+      }
+    },
+    {
+      "technique": "self_critique",
+      "case": "terse-correct",
+      "run": 2,
+      "expected": [
+        4,
+        5
+      ],
+      "ok": true,
+      "score": 4,
+      "in_range": true,
+      "abs_error": 0,
+      "latency_s": 9.37,
+      "output_tokens": 625,
+      "cost_usd": 0.00032335,
+      "summary": "The candidate gives a concise, correct comparison of process and thread memory and identifies practical implications. A brief definition of a thread as an execution unit would make the explanation more complete.",
+      "working": {
+        "draft_assessment": "4/5 — The answer correctly explains that processes have separate memory spaces while threads within a process share memory, and notes key implications for cost, synchronization, and failure.",
+        "critique": "A 4 is appropriate for this easy-level question. The answer is accurate and covers the central distinction plus useful consequences; it could be slightly more complete by describing a thread as an execution path within a process, but that omission does not warrant a lower score. The crash statement is reasonably qualified as something that can happen."
+      }
+    }
+  ]
+}

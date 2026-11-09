@@ -21,6 +21,9 @@ REASONING_EFFORTS = ("low", "medium", "high")  # offered when a model does not p
 STANDARD_PARAMS = frozenset({"temperature", "max_tokens"})
 DEFAULT_TEMPERATURE = 0.4
 DEFAULT_MAX_TOKENS = 2000
+# The approved models are reasoning models; low effort keeps latency and cost down for interview tasks.
+# Sent only when the model supports it (ignored otherwise).
+DEFAULT_REASONING_EFFORT = "low"
 TEMPERATURE_RANGE = (0.0, 2.0)
 MAX_TOKENS_RANGE = (64, 64000)
 
@@ -93,7 +96,7 @@ OPTIONAL_SPECS = tuple(spec for spec in PARAM_SPECS if spec.provider_default is 
 class GenerationParams:
     temperature: float = DEFAULT_TEMPERATURE
     max_tokens: int = DEFAULT_MAX_TOKENS
-    reasoning_effort: str | None = None
+    reasoning_effort: str | None = DEFAULT_REASONING_EFFORT
     top_p: float = 1.0
     top_k: int = 0
     frequency_penalty: float = 0.0

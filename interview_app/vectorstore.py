@@ -1,12 +1,12 @@
-"""Semantic question memory: ChromaDB + an open-source local embedding model.
+"""Semantic question memory: ChromaDB + the project's approved embedding model.
 
 Why ChromaDB: it stores vectors *and* metadata together (domain, role, company, difficulty,
 category, timestamp) with metadata filtering, persists to a local folder, and needs no server.
 FAISS would need a separate metadata store.
 
-Embeddings: ``all-MiniLM-L6-v2`` (Apache-2.0), run locally through ChromaDB's ONNX runtime. No
-question text leaves the machine for embedding, and there is no per-call cost. The model is
-downloaded once (~80 MB) on first use.
+Embeddings: ``qwen/qwen3-embedding-8b`` (the project's recommended embedding model) through the
+OpenRouter embeddings endpoint. Only generated question text is sent for embedding (about
+$0.01 per million tokens). Each embedding model gets its own collection, because vector sizes differ.
 
 Similarity is cosine similarity (1 - cosine distance) between question embeddings. Each new
 question is labelled:
@@ -25,11 +25,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_PATH = ROOT / "data" / "chroma"
-COLLECTION = "interview_questions"
+EMBEDDINGS_URL = "https://openrouter.ai/api/v1/embeddings"
+EMBEDDING_MODEL = "qwen/qwen3-embedding-8b"
+COLLECTION = "interview_questions_qwen3_embedding_8b"
 
-# Calibrated on labelled question pairs with all-MiniLM-L6-v2 (see docs/VECTOR_DB.md).
-DEFAULT_DUPLICATE_THRESHOLD = 0.62
-DEFAULT_SIMILAR_THRESHOLD = 0.45
+# Calibrated on labelled question pairs with qwen/qwen3-embedding-8b (see docs/VECTOR_DB.md).
+DEFAULT_DUPLICATE_THRESHOLD = 0.85
+DEFAULT_SIMILAR_THRESHOLD = 0.70
 METADATA_FIELDS = ("domain", "role", "company", "difficulty", "category", "topic", "source", "created_at")
 
 
@@ -84,10 +86,72 @@ def cosine(a, b) -> float:
     return dot / norm if norm else 0.0
 
 
-def default_embedding_function():
-    from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+class OpenRouterEmbedding:
+    """ChromaDB embedding function backed by the OpenRouter embeddings API.
 
-    return DefaultEmbeddingFunction()
+    The API key is resolved at call time from the app configuration and is never stored in the
+    collection's persisted configuration.
+    """
+
+    def __init__(self, model: str = EMBEDDING_MODEL, api_key: str | None = None):
+        self.model = model
+        self._api_key = api_key
+
+    def __call__(self, input):  # noqa: A002 - ChromaDB's protocol name
+        import httpx
+        import numpy as np
+
+        from interview_app.openrouter import ModelServiceError, get_api_key
+
+        texts = [str(text) for text in input]
+        if not texts:
+            return []
+        api_key = self._api_key or get_api_key()
+        if not api_key:
+            raise ModelServiceError("Add OPENROUTER_API_KEY to enable question memory (embeddings).")
+        last_error: Exception | None = None
+        for _attempt in range(2):
+            try:
+                response = httpx.post(EMBEDDINGS_URL, headers={"Authorization": f"Bearer {api_key}"},
+                                      json={"model": self.model, "input": texts}, timeout=60.0)
+                response.raise_for_status()
+                payload = response.json()
+                if payload.get("error") or not isinstance(payload.get("data"), list):
+                    raise ModelServiceError("The embedding service returned an unexpected response.")
+                rows = sorted(payload["data"], key=lambda row: row.get("index", 0))
+                return [np.asarray(row["embedding"], dtype=np.float32) for row in rows]
+            except (httpx.TransportError, httpx.HTTPStatusError) as error:
+                last_error = error
+                if isinstance(error, httpx.HTTPStatusError) and error.response.status_code < 500 and error.response.status_code != 429:
+                    break
+        raise last_error
+
+    @staticmethod
+    def name() -> str:
+        return "openrouter"
+
+    def get_config(self) -> dict:
+        return {"model": self.model}
+
+    @staticmethod
+    def build_from_config(config: dict) -> "OpenRouterEmbedding":
+        return OpenRouterEmbedding(model=config.get("model", EMBEDDING_MODEL))
+
+    def is_legacy(self) -> bool:
+        return False
+
+    def default_space(self) -> str:
+        return "cosine"
+
+    def supported_spaces(self) -> list[str]:
+        return ["cosine", "l2", "ip"]
+
+    def embed_query(self, input):  # noqa: A002
+        return self(input)
+
+
+def default_embedding_function():
+    return OpenRouterEmbedding()
 
 
 class QuestionMemory:
