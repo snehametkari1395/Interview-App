@@ -11,7 +11,7 @@ st.set_page_config(page_title="Interviewer guide | Fieldnotes", page_icon=":mate
 
 params = render_sidebar()
 
-st.badge("FOR INTERVIEWERS", icon=":material/fact_check:", color="violet")
+st.badge("FOR INTERVIEWERS", icon=":material/fact_check:", color="green")
 st.title("Interviewer guide", icon=":material/fact_check:")
 st.caption("Generate a structured, fair evaluation guide: criteria, competencies, a 1–5 rubric, indicators, red flags, and follow-ups.")
 

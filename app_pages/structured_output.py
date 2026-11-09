@@ -32,7 +32,7 @@ params = render_sidebar()
 model = active_model()
 caps = get_capabilities(model)
 
-st.badge("STRUCTURED JSON", icon=":material/data_object:", color="blue")
+st.badge("STRUCTURED JSON", icon=":material/data_object:", color="green")
 st.title("Structured output", icon=":material/data_object:")
 st.caption("Generate machine-readable interview material that is validated against a JSON Schema, then view or download it.")
 

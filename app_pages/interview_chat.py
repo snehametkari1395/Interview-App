@@ -2,11 +2,12 @@ import json
 import queue
 import threading
 import uuid
+from dataclasses import replace
 from datetime import datetime
 
 import streamlit as st
 
-from interview_app.catalog import DOMAINS, PrepProfile
+from interview_app.catalog import DEPTHS, DOMAINS, PrepProfile
 from interview_app.chains.interview_graph import Dependencies, build_interview_graph, initial_state, run_config
 from interview_app.chains.llm import spec_from_session
 from interview_app.chains.workflows import BLOCKED_REPLY, interviewer_reply, job_context_from
@@ -141,9 +142,9 @@ def dependencies() -> Dependencies:
 # ---------------------------------------------------------------------------
 # Header and interview list
 # ---------------------------------------------------------------------------
-st.badge("AI INTERVIEWER", icon=":material/forum:", color="violet")
+st.badge("AI INTERVIEWER", icon=":material/forum:", color="green")
 st.title("Interview chat", icon=":material/forum:")
-st.caption(f"Model `{active_model()}`. Each turn: defensive triage, evaluate (chain C), adapt difficulty, follow up (chain D), streamed feedback.")
+st.caption("A live mock interview: answer each question in your own words and get instant feedback.")
 
 threads = st.session_state.chat_threads
 toolbar = st.container(horizontal=True, vertical_alignment="bottom")
@@ -178,17 +179,21 @@ thread = active_thread()
 if thread is None:
     left, right = st.columns([1.3, 1], gap="large")
     with left, st.container(border=True):
-        st.subheader("Start an interview")
-        profile = profile_inputs("chat")
-        focus = st.segmented_control("Question focus", DOMAINS[profile.domain].focuses, default="Balanced", required=True, key=f"chat_focus_{profile.domain}")
-        topic_hint = st.text_input("Topic (optional)", max_chars=MAX_HINT_CHARS, placeholder="e.g. Python, SQL window functions, stakeholder management")
-        company = st.text_input("Company (optional)", max_chars=MAX_COMPANY_CHARS, help="Stored with generated questions so you can filter the question memory.")
+        st.subheader("Set up your mock interview")
+        profile = profile_inputs("chat", show_depth=False)
+        focus = st.segmented_control("Interview type", DOMAINS[profile.domain].focuses, default="Balanced", required=True, key=f"chat_focus_{profile.domain}")
+        count = st.select_slider("Length", options=[3, 4, 5, 6, 8, 10], value=5,
+                                 format_func=lambda n: f"{n} questions · about {n * 3} min")
         analysis = st.session_state.get("jd_chain_analysis")
         use_jd = False
-        if analysis and analysis.get("is_job_description"):
-            use_jd = st.checkbox(f"Ground questions in my job description ({analysis.get('role_title') or 'analysed role'})", value=True)
-        count = st.select_slider("Questions in this interview", options=[3, 4, 5, 6, 8, 10], value=5)
-        start = st.button("Start interview", type="primary", width="stretch", icon=":material/play_arrow:", disabled=not get_api_key())
+        with st.expander("More options", icon=":material/tune:"):
+            topic_hint = st.text_input("Topic (optional)", max_chars=MAX_HINT_CHARS, placeholder="e.g. Python, SQL window functions, stakeholder management")
+            company = st.text_input("Company (optional)", max_chars=MAX_COMPANY_CHARS, help="Stored with generated questions so you can filter the question memory.")
+            depth = st.segmented_control("Feedback depth", list(DEPTHS), default=profile.depth, required=True, key="chat_depth")
+            if analysis and analysis.get("is_job_description"):
+                use_jd = st.checkbox(f"Ground questions in my job description ({analysis.get('role_title') or 'analysed role'})", value=True)
+        profile = replace(profile, depth=depth)
+        start = st.button("Start mock interview", type="primary", width="stretch", icon=":material/arrow_forward:", disabled=not get_api_key())
     with right, st.container(border=True):
         st.subheader("How it works")
         st.markdown(

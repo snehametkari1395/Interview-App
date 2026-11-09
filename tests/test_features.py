@@ -248,7 +248,8 @@ class AppPageTests(unittest.TestCase):
             self.addCleanup(patcher.stop)
 
     def _app(self):
-        return self.AppTest.from_file(str(ROOT / "app.py"), default_timeout=20).run()
+        at = self.AppTest.from_file(str(ROOT / "app.py"), default_timeout=20).run()
+        return at.switch_page("app_pages/practice.py").run()  # the app opens on Home
 
     def test_every_page_renders(self):
         at = self._app()

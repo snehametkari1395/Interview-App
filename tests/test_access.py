@@ -23,7 +23,7 @@ class AccessCodeTests(unittest.TestCase):
         at.secrets["APP_ACCESS_CODE"] = "letmein"
         at.run()
         self.assertTrue(any(field.label == "Access code" for field in at.text_input))
-        self.assertFalse(any(button.label == "Start interview" for button in at.button))
+        self.assertFalse(any("Welcome" in title.value for title in at.title))
 
         at.text_input[0].input("wrong")
         at.button[0].click().run()
@@ -34,7 +34,7 @@ class AccessCodeTests(unittest.TestCase):
         at.button[0].click().run()
         self.assertFalse(at.exception, at.exception)
         self.assertTrue(at.session_state.access_granted)
-        self.assertTrue(any(button.label == "Start interview" for button in at.button))  # practice room is shown
+        self.assertTrue(any("Welcome" in title.value for title in at.title))  # the Home dashboard is shown
 
     def test_no_code_configured_means_no_gate(self):
         at = self.AppTest.from_file(str(ROOT / "app.py"), default_timeout=30)

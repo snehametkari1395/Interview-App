@@ -16,7 +16,7 @@ st.set_page_config(page_title="Job description | Fieldnotes", page_icon=":materi
 
 render_sidebar()
 
-st.badge("ROLE INTELLIGENCE", icon=":material/description:", color="blue")
+st.badge("ROLE INTELLIGENCE", icon=":material/description:", color="green")
 st.title("Build a role brief", icon=":material/description:")
 st.caption("Turn the job description into a focused interview plan (LangChain chain A), then take it into practice or the interview chat.")
 

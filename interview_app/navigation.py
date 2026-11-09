@@ -7,6 +7,7 @@ DEVELOPER = "Developer tools"
 
 # (file, title, icon, section). Pages whose file does not exist yet are skipped by the router.
 PAGES = (
+    ("app_pages/home.py", "Home", ":material/home:", PRACTICE),
     ("app_pages/practice.py", "Practice room", ":material/record_voice_over:", PRACTICE),
     ("app_pages/interview_chat.py", "Interview chat", ":material/forum:", PRACTICE),
     ("app_pages/job_description.py", "Job description", ":material/description:", PRACTICE),

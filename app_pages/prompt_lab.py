@@ -8,7 +8,7 @@ from interview_app.ui import render_sidebar, require_api_key, show_error
 
 render_sidebar()
 
-st.badge("PROMPT ENGINEERING", icon=":material/science:", color="violet")
+st.badge("PROMPT ENGINEERING", icon=":material/science:", color="green")
 st.title("Prompt lab", icon=":material/science:")
 st.caption("Five system prompts that use different techniques for the same task, evaluating an interview answer, compared on human-labelled answers.")
 

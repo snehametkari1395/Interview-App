@@ -41,7 +41,7 @@ def _reset_to_recommended() -> None:
     st.session_state.cfg_use_seed = False
 
 
-st.badge("ADVANCED", icon=":material/settings:", color="gray")
+st.badge("ADVANCED", icon=":material/settings:", color="green")
 st.title("Model settings", icon=":material/settings:")
 st.caption("Choose the provider and model, tune generation parameters, and see exactly what will be sent. These settings apply to every AI feature.")
 

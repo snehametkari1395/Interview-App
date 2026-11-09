@@ -6,6 +6,7 @@ from interview_app.catalog import DEPTHS, DIFFICULTIES, DOMAINS, PERSONAS, PrepP
 from interview_app.model_config import GenerationParams
 from interview_app.openrouter import (
     active_model,
+    get_capabilities,
     current_params,
     describe_error,
     get_api_key,
@@ -52,12 +53,10 @@ def _seed(key: str, value) -> None:
 def render_sidebar() -> GenerationParams:
     params = current_params()
     with st.sidebar:
-        st.title("Fieldnotes", icon=":material/graphic_eq:")
-        st.caption("Interview practice for the next opportunity.")
         with st.container(border=True):
             st.caption("Active model")
             st.markdown(f"**{model_label(active_model())}**")
-            st.caption(params.label())
+            st.caption(params.label(get_capabilities(active_model())))
             calls, spend = session_spend()
             st.caption(f"This session: {calls} AI call{'s' if calls != 1 else ''} · {format_usd(spend)} actual cost")
         st.caption("Sessions stay in this browser session; text you submit is sent to OpenRouter for AI features.")

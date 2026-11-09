@@ -69,7 +69,7 @@ def build_question_set(profile, focus: str, count: int, source: str, use_jd: boo
 
 
 def render_setup() -> None:
-    st.badge("INTERVIEW PRACTICE", icon=":material/terminal:", color="blue")
+    st.badge("INTERVIEW PRACTICE", icon=":material/terminal:", color="green")
     st.title("The interview room", icon=":material/record_voice_over:")
     st.caption("Build a focused round. Get a clear debrief. Turn the next answer into a stronger one.")
     left, right = st.columns([1.35, 1], gap="large")
@@ -232,6 +232,8 @@ def submit_answer(profile, mode: str, question: dict, index: int, answer: str) -
             "attempts": [attempt],
         })
     st.session_state.practice_flags = assessment.flags
+    st.session_state.setdefault("practice_history", []).append(  # for the Home dashboard (session only)
+        {"question": question["question"], "score": result["score"], "role": profile.role, "difficulty": profile.difficulty})
     st.session_state.practice_feedback = result
     last_call = st.session_state.get("last_call")
     st.session_state.practice_cost = last_call.cost if last_call is not None else None

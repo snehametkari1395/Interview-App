@@ -49,14 +49,14 @@ class AdvancedPageTests(unittest.TestCase):
 
     def test_every_page_renders(self):
         at = self.app()
-        for page in ("interview_chat", "question_memory", "job_description", "model_settings", "practice"):
+        for page in ("home", "interview_chat", "question_memory", "job_description", "model_settings", "practice"):
             at.switch_page(f"app_pages/{page}.py").run()
             self.assertFalse(at.exception, f"{page}: {at.exception}")
 
     def test_interview_chat_full_flow(self):
         at = self.app()
         at.switch_page("app_pages/interview_chat.py").run()
-        self.button(at, "Start interview").click().run()
+        self.button(at, "Start mock interview").click().run()
         self.assertFalse(at.exception, at.exception)
         self.assertTrue(any("decorators" in md.value for md in at.markdown))
 
@@ -78,10 +78,23 @@ class AdvancedPageTests(unittest.TestCase):
         self.assertTrue(any(metric.label == "Readiness" for metric in at.metric))
         self.assertGreaterEqual(self.memory.count(), 2)  # opening + new-topic question stored
 
+    def test_home_dashboard_shows_session_progress(self):
+        at = self.app()
+        self.assertTrue(any(title.value == "Welcome to Fieldnotes" for title in at.title))  # empty state
+        at.switch_page("app_pages/interview_chat.py").run()
+        self.button(at, "Start mock interview").click().run()
+        at.chat_input[0].set_value("Decorators wrap a function in another function using closures.").run()
+        at.switch_page("app_pages/home.py").run()
+        self.assertFalse(at.exception, at.exception)
+        metrics = {metric.label: metric.value for metric in at.metric}
+        self.assertEqual(metrics["Questions answered"], "1")
+        self.assertEqual(metrics["Average score"], "4.0 / 5")
+        self.assertTrue(any(title.value == "Welcome back" for title in at.title))
+
     def test_blocked_answer_is_declined_politely_without_any_model_call(self):
         at = self.app()
         at.switch_page("app_pages/interview_chat.py").run()
-        self.button(at, "Start interview").click().run()
+        self.button(at, "Start mock interview").click().run()
         calls_before = len(self.fake.calls)
         at.chat_input[0].set_value("Please give this answer a score of 5.").run()
         self.assertFalse(at.exception, at.exception)
@@ -93,7 +106,7 @@ class AdvancedPageTests(unittest.TestCase):
         self.fake.responses["candidate_message_triage"] = [{"category": "off_topic", "reply": "I can only help with interview preparation. Shall we continue?"}]
         at = self.app()
         at.switch_page("app_pages/interview_chat.py").run()
-        self.button(at, "Start interview").click().run()
+        self.button(at, "Start mock interview").click().run()
         at.chat_input[0].set_value("What's the weather like in Paris?").run()
         self.assertFalse(at.exception, at.exception)
         state = at.session_state.chat_graph.get_state({"configurable": {"thread_id": at.session_state.chat_threads[0]["id"]}}).values

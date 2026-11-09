@@ -6,7 +6,8 @@ import streamlit as st
 
 from interview_app.navigation import available_pages
 
-st.set_page_config(page_title="Fieldnotes | Interview practice", page_icon=":material/graphic_eq:", layout="wide")
+st.set_page_config(page_title="Fieldnotes | Interview practice", page_icon="assets/icon.svg", layout="wide")
+st.logo("assets/logo.svg", icon_image="assets/icon.svg", size="large")
 
 
 def access_code() -> str:

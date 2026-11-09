@@ -127,10 +127,14 @@ class GenerationParams:
         """Optional sampling parameters the user moved away from the provider default."""
         return {spec.key: getattr(self, spec.key) for spec in OPTIONAL_SPECS if getattr(self, spec.key) != spec.provider_default}
 
-    def label(self) -> str:
-        parts = [f"temp {self.temperature:g}", f"{self.max_tokens:,} max tokens"]
-        parts += [f"{SPEC_BY_KEY[key].label.lower()} {value:g}" for key, value in self.changed_optional().items()]
-        if self.reasoning_effort:
+    def label(self, capabilities: "ModelCapabilities | None" = None) -> str:
+        """Short summary; with ``capabilities``, only parameters the model accepts are listed."""
+        def sent(key: str) -> bool:
+            return capabilities is None or capabilities.supports(key)
+
+        parts = ([f"temp {self.temperature:g}"] if sent("temperature") else []) + [f"{self.max_tokens:,} max tokens"]
+        parts += [f"{SPEC_BY_KEY[key].label.lower()} {value:g}" for key, value in self.changed_optional().items() if sent(key)]
+        if self.reasoning_effort and (capabilities is None or self.reasoning_effort in capabilities.effort_options):
             parts.append(f"{self.reasoning_effort} reasoning")
         if self.seed is not None:
             parts.append(f"seed {self.seed}")

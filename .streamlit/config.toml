@@ -1,21 +1,27 @@
+# Fieldnotes theme: deep green brand on a soft off-white surface, white sidebar.
 [theme]
 base = "light"
-primaryColor = "#2864E8"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F4F7FC"
-textColor = "#10213D"
-font = "sans serif"
-headingFont = "sans serif"
+primaryColor = "#1F5130"
+backgroundColor = "#F7F8F3"
+secondaryBackgroundColor = "#EDF1E6"
+textColor = "#17251B"
+linkColor = "#1F5130"
+greenColor = "#2F6B3A"
+borderColor = "#DCE3D3"
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+headingFont = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 codeFont = "monospace"
-borderColor = "#DFE6F0"
+baseRadius = "0.75rem"
+buttonRadius = "0.6rem"
+metricValueFontWeight = 700
 showWidgetBorder = true
 showSidebarBorder = true
 
 [theme.sidebar]
-backgroundColor = "#F5F8FD"
-secondaryBackgroundColor = "#FFFFFF"
-textColor = "#10213D"
-borderColor = "#DFE6F0"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#EEF3E6"
+textColor = "#17251B"
+borderColor = "#E3E8DB"
 
 [client]
 showSidebarNavigation = true

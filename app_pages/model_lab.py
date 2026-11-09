@@ -27,7 +27,7 @@ st.set_page_config(page_title="Model lab | Fieldnotes", page_icon=":material/tun
 
 render_sidebar()
 
-st.badge("MODEL LAB", icon=":material/tune:", color="orange")
+st.badge("MODEL LAB", icon=":material/tune:", color="green")
 st.title("Compare parameter settings", icon=":material/tune:")
 st.caption("Run the same interview task under different settings, then compare quality, relevance, creativity, accuracy, length, and consistency.")
 

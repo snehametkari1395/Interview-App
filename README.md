@@ -77,6 +77,7 @@ Notes: the question memory (`data/chroma/`) is stored on the app's temporary dis
 
 | Page | What it does |
 | --- | --- |
+| Home | A dashboard of this session's progress: interviews completed, questions answered, average score, highest level reached, a skill breakdown, recent activity, and quick-start cards. |
 | Practice room | One-question-at-a-time practice by domain, role, difficulty, response depth, and persona. AI questions come from chain B with duplicate detection (falls back to a curated bank). Off-topic messages get a polite reply instead of a score. |
 | Interview chat | A conversational AI interviewer (LangGraph): asks, triages each message (answers are scored; off-topic and manipulation attempts are politely declined), streams feedback, follows up or changes topic, adapts difficulty, tracks a scoreboard, and ends with a summary and learning plan. Interviews can be resumed or cleared within the session. |
 | Job description | Paste or upload (.txt, .md, .pdf, .docx) a job description; chain A extracts skills, technical and behavioural competencies, topics, likely questions, and a prep plan. |
