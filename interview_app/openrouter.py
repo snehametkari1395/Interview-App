@@ -33,6 +33,7 @@ from interview_app.model_config import (
     build_request_body,
     capabilities_from_catalog_entry,
 )
+from interview_app.licensing import DEFAULT_OPEN_MODEL
 from interview_app.pricing import CostBreakdown, actual_cost, extract_usage
 from interview_app.schemas import validate_against, wire_schema
 from interview_app.security_guard import GuardError, check_rate_limit, parse_json_object, redact_secrets
@@ -41,7 +42,7 @@ API_BASE = "https://openrouter.ai/api/v1"
 API_URL = f"{API_BASE}/chat/completions"
 MODELS_URL = f"{API_BASE}/models"
 KEY_URL = f"{API_BASE}/key"
-DEFAULT_MODEL = "openai/gpt-4o-mini"
+DEFAULT_MODEL = DEFAULT_OPEN_MODEL  # open weights (Apache-2.0); proprietary models remain selectable
 REQUEST_TIMEOUT_S = 90.0
 
 RETRYABLE_STATUS = frozenset({408, 429, 500, 502, 503, 504})
@@ -225,12 +226,24 @@ def session_spend() -> tuple[int, float]:
 # ---------------------------------------------------------------------------
 
 
+def _sdk_status(error: Exception) -> int | None:
+    """HTTP status of an error raised by the OpenRouter Python SDK (used by LangChain's ChatOpenRouter)."""
+    try:
+        from openrouter.errors import OpenRouterError
+    except ImportError:  # pragma: no cover - SDK is a dependency of langchain-openrouter
+        return None
+    if isinstance(error, OpenRouterError):
+        status = getattr(getattr(error, "raw_response", None), "status_code", None)
+        return status if isinstance(status, int) else None
+    return None
+
+
 def _status_of(error: Exception) -> int | None:
     if isinstance(error, httpx.HTTPStatusError):
         return error.response.status_code
     if isinstance(error, ProviderError):
         return error.status
-    return None
+    return _sdk_status(error)
 
 
 def describe_error(error: Exception) -> str:
@@ -239,8 +252,9 @@ def describe_error(error: Exception) -> str:
         return str(error)
     if isinstance(error, httpx.TimeoutException):
         return "The AI service took too long to respond. Please try again, or lower max output tokens."
-    if isinstance(error, httpx.HTTPStatusError):
-        status = error.response.status_code
+    sdk_status = _sdk_status(error)
+    if isinstance(error, httpx.HTTPStatusError) or sdk_status is not None:
+        status = sdk_status if sdk_status is not None else error.response.status_code
         messages = {
             400: "The AI service rejected the request. Try a different model or parameter settings.",
             401: "The OpenRouter API key was rejected. Check OPENROUTER_API_KEY.",
@@ -257,8 +271,10 @@ def describe_error(error: Exception) -> str:
         if status >= 500:
             return "The AI service is temporarily unavailable. Please try again shortly."
         return f"The AI service returned an error (HTTP {status})."
-    if isinstance(error, httpx.HTTPError):
+    if isinstance(error, httpx.HTTPError) or type(error).__name__ == "NoResponseError":
         return "Could not reach the AI service. Check your internet connection and try again."
+    if type(error).__name__ == "ResponseValidationError":
+        return "OpenRouter returned an unexpected response. Please try again."
     logger.exception("Unexpected error during model call")
     return "Something went wrong while contacting the AI service. Please try again."
 

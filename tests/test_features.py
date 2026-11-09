@@ -249,8 +249,8 @@ class AppPageTests(unittest.TestCase):
     def test_every_page_renders(self):
         at = self._app()
         self.assertFalse(at.exception, at.exception)
-        for page in ("pages/1_Job_Description.py", "pages/2_Interviewer_Guide.py", "pages/3_Model_Lab.py",
-                     "pages/4_Security_Lab.py", "pages/5_App_Review.py"):
+        for page in ("app_pages/job_description.py", "app_pages/interviewer_guide.py", "app_pages/model_lab.py",
+                     "app_pages/security_lab.py", "app_pages/app_review.py"):
             at.switch_page(page).run()
             self.assertFalse(at.exception, f"{page}: {at.exception}")
 

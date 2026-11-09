@@ -22,17 +22,18 @@ DOSSIER_FILES = (
     "interview_app/file_ingest.py",
     "interview_app/schemas.py",
     "interview_app/model_config.py",
+    "app_pages/practice.py",
     "app.py",
-    "pages/1_Job_Description.py",
+    "app_pages/job_description.py",
     "interview_app/structured.py",
     "interview_app/coaching.py",
     "interview_app/ui.py",
     "interview_app/pricing.py",
-    "pages/7_Structured_Output.py",
-    "pages/6_Model_Settings.py",
+    "app_pages/structured_output.py",
+    "app_pages/model_settings.py",
     "interview_app/catalog.py",
-    "pages/2_Interviewer_Guide.py",
-    "pages/3_Model_Lab.py",
+    "app_pages/interviewer_guide.py",
+    "app_pages/model_lab.py",
 )
 MAX_FILE_CHARS = 24000
 MAX_DOSSIER_CHARS = 140000

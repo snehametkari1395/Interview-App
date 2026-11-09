@@ -295,13 +295,13 @@ class NewPageTests(unittest.TestCase):
 
     def test_settings_and_structured_pages_render(self):
         at = self.AppTest.from_file(str(ROOT / "app.py"), default_timeout=20).run()
-        for page in ("pages/6_Model_Settings.py", "pages/7_Structured_Output.py"):
+        for page in ("app_pages/model_settings.py", "app_pages/structured_output.py"):
             at.switch_page(page).run()
             self.assertFalse(at.exception, f"{page}: {at.exception}")
 
     def test_settings_sync_disable_and_persist(self):
         at = self.AppTest.from_file(str(ROOT / "app.py"), default_timeout=20).run()
-        at.switch_page("pages/6_Model_Settings.py").run()
+        at.switch_page("app_pages/model_settings.py").run()
         at.number_input(key="cfg_top_p_n").set_value(0.8).run()
         self.assertEqual(at.slider(key="cfg_top_p_s").value, 0.8)
         self.assertEqual(at.session_state.model_settings.top_p, 0.8)

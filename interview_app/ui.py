@@ -14,17 +14,6 @@ from interview_app.openrouter import (
 )
 from interview_app.pricing import CostBreakdown, format_usd
 
-PAGES = (
-    ("app.py", "Practice room", ":material/record_voice_over:"),
-    ("pages/1_Job_Description.py", "Job description", ":material/description:"),
-    ("pages/2_Interviewer_Guide.py", "Interviewer guide", ":material/fact_check:"),
-    ("pages/7_Structured_Output.py", "Structured output", ":material/data_object:"),
-    ("pages/3_Model_Lab.py", "Model lab", ":material/tune:"),
-    ("pages/4_Security_Lab.py", "Security lab", ":material/shield:"),
-    ("pages/5_App_Review.py", "App review", ":material/rate_review:"),
-    ("pages/6_Model_Settings.py", "Model settings", ":material/settings:"),
-)
-
 MAX_TOKEN_OPTIONS = [256, 512, 1000, 1500, 2000, 3000, 4000, 6000, 8000, 12000, 16000]
 
 PROVIDER_LABELS = {
@@ -65,9 +54,6 @@ def render_sidebar() -> GenerationParams:
     with st.sidebar:
         st.title("Fieldnotes", icon=":material/graphic_eq:")
         st.caption("Interview practice for the next opportunity.")
-        for path, label, icon in PAGES:
-            st.page_link(path, label=label, icon=icon)
-        st.divider()
         with st.container(border=True):
             st.caption("Active model")
             st.markdown(f"**{model_label(active_model())}**")

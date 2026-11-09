@@ -18,4 +18,4 @@ textColor = "#10213D"
 borderColor = "#DFE6F0"
 
 [client]
-showSidebarNavigation = false
+showSidebarNavigation = true

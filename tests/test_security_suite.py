@@ -58,9 +58,9 @@ class JobDescriptionUploadPageTests(unittest.TestCase):
              mock.patch("interview_app.openrouter.httpx.post", side_effect=AssertionError("network")), \
              mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "test-key", "OPENROUTER_MODEL": "test/model"}):
             at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=20).run()
-            at.switch_page("pages/1_Job_Description.py").run()
+            at.switch_page("app_pages/job_description.py").run()
             self.assertFalse(at.exception, at.exception)
-            at.switch_page("pages/4_Security_Lab.py").run()
+            at.switch_page("app_pages/security_lab.py").run()
             self.assertFalse(at.exception, at.exception)
 
 
