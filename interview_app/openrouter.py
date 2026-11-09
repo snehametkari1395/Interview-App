@@ -35,7 +35,7 @@ from interview_app.model_config import (
 )
 from interview_app.licensing import DEFAULT_OPEN_MODEL
 from interview_app.pricing import CostBreakdown, actual_cost, extract_usage
-from interview_app.schemas import validate_against, wire_schema
+from interview_app.schemas import trim_to_schema, validate_against, wire_schema
 from interview_app.security_guard import GuardError, check_rate_limit, parse_json_object, redact_secrets
 
 API_BASE = "https://openrouter.ai/api/v1"
@@ -260,7 +260,7 @@ def describe_error(error: Exception) -> str:
             401: "The OpenRouter API key was rejected. Check OPENROUTER_API_KEY.",
             402: "Your OpenRouter account has insufficient credits for this request.",
             403: "This request was blocked by the AI provider's moderation or access rules.",
-            404: "The selected model was not found on OpenRouter. Choose another model in Model settings.",
+            404: "The selected model is unavailable to this account: it was not found, or an OpenRouter guardrail or data policy blocks it. Choose another model in Model settings or adjust your OpenRouter guardrails.",
             408: "The AI service timed out. Please try again.",
             413: "The request was too large for this model. Shorten the input.",
             429: "The AI service is rate-limiting requests. Please wait a moment and try again.",
@@ -363,6 +363,7 @@ def _parse_result(payload: dict, plan, route_model: str, caps: ModelCapabilities
     try:
         data = parse_json_object(content)
         if schema is not None:
+            data, _repairs = trim_to_schema(data, schema)
             validate_against(data, schema, "response")
     except GuardError as error:
         error.raw_text = content[:6000]

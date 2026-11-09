@@ -1,92 +1,101 @@
 # Fieldnotes Interview Practice
 
-A Streamlit app for domain-specific interview practice, answer coaching, interviewer guides, structured interview-prep data, and job-description preparation. Practice sessions stay in Streamlit session state; they are not written to a database. Text you submit is sent to OpenRouter when you use an AI feature.
+A Streamlit app for AI interview preparation: a conversational AI interviewer, domain-specific practice, job-description analysis, structured interview data, interviewer guides, and developer tools for model configuration, evaluation, and security testing. AI features run through OpenRouter; the advanced workflows use LangChain and LangGraph, open-weight models by default, and a local ChromaDB vector store to avoid repeating questions.
 
-## Run locally
+## Setup
 
-1. Install [uv](https://docs.astral.sh/uv/).
-2. Set `OPENROUTER_API_KEY` in your environment, or add it to `.streamlit/secrets.toml` (git-ignored):
+1. Install [uv](https://docs.astral.sh/uv/) (Python 3.11+).
+2. Add your OpenRouter key to `.streamlit/secrets.toml` (git-ignored) or the environment:
 
    ```toml
    OPENROUTER_API_KEY = "your-key"
-   # Optional; defaults to openai/gpt-4o-mini
-   OPENROUTER_MODEL = "openai/gpt-4o-mini"
-   # Optional; used automatically if the primary model is unavailable
-   OPENROUTER_FALLBACK_MODEL = "anthropic/claude-haiku-4.5"
+   # Default model. The advanced features are designed for an open-weight model:
+   OPENROUTER_MODEL = "qwen/qwen3-235b-a22b-2507"
+   # Optional: used automatically if the primary model is unavailable
+   OPENROUTER_FALLBACK_MODEL = "deepseek/deepseek-v3.2"
    ```
 
-3. Start the app:
+   If your OpenRouter workspace has model **guardrails**, allow the models you want to use at https://openrouter.ai/workspaces/default/guardrails. A blocked model returns "unavailable to this account". For this project: `qwen/qwen3-235b-a22b-2507`, `deepseek/deepseek-v3.2`, `mistralai/mistral-small-3.2-24b-instruct`, and the judge `moonshotai/kimi-k2-0905`.
+
+3. Install and run:
 
    ```powershell
+   uv sync
    uv run streamlit run app.py
    ```
 
-4. Run the tests (no network or API key needed):
+   The first use of question memory downloads the open-source embedding model (`all-MiniLM-L6-v2`, about 80 MB) to `~/.cache/chroma`. Stored questions live in `data/chroma/` (git-ignored).
+
+4. Tests (offline, no key needed):
 
    ```powershell
-   uv run python -m unittest discover -s tests
+   uv run python -m unittest discover -s tests -t .
    ```
 
-5. Run the security test suite and write `docs/SECURITY_TEST_REPORT.md`:
+## Pages
 
-   ```powershell
-   uv run python scripts/run_security_tests.py          # deterministic tests (free)
-   uv run python scripts/run_security_tests.py --live   # plus live jailbreak attempts against the model
-   ```
-
-## Features
+**Practice**
 
 | Page | What it does |
 | --- | --- |
-| Practice room | Pick a **domain**, role, **difficulty**, **response depth**, and **interviewer persona**. Questions are AI-generated for that combination (or drawn from the curated bank offline). Feedback includes a score, per-criterion ratings, expected points, a sample answer, an in-persona reaction, and the actual cost of the call. |
-| Job description | Analyses a pasted or **uploaded** (.txt, .md, .pdf, .docx) job description into skills, likely questions, and a prep plan. Text that isn't a job description is detected and no plan is built. |
-| Interviewer guide | Technical and/or behavioural guides: weighted criteria, competencies, a 1–5 rubric, indicators, red flags, common mistakes, a strong-answer example, and follow-ups. |
-| Structured output | **Format 1** (Q&A set) and **Format 2** (answer evaluation) as JSON validated against JSON Schemas. View or download the JSON and the schemas. Shows the estimated cost before generation and the actual cost after. |
-| Model lab | Runs one task under 2–3 parameter configurations and compares length, latency, tokens, diversity, consistency, score spread, and judge-rated quality, relevance, creativity, and accuracy. |
-| Security lab | Checks any text against the guard, benchmarks an LLM security screen, and runs the full security test suite with a downloadable report. |
-| App review | Sends a redacted, allow-listed code dossier to the model for a usability, security, and prompt-engineering critique. |
-| Model settings | Provider and model selection from the live OpenRouter catalog, a fallback model, every supported sampling parameter, a request preview, account credits, and this session's call log. |
+| Practice room | One-question-at-a-time practice by domain, role, difficulty, response depth, and persona. AI questions come from chain B with duplicate detection (falls back to a curated bank). |
+| Interview chat | A conversational AI interviewer (LangGraph): asks, scores, streams feedback, follows up or changes topic, adapts difficulty, tracks a scoreboard, and ends with a summary and learning plan. Interviews can be resumed or cleared within the session. |
+| Job description | Paste or upload (.txt, .md, .pdf, .docx) a job description; chain A extracts skills, technical and behavioural competencies, topics, likely questions, and a prep plan. |
+| Structured output | Format 1 (Q&A set) and Format 2 (answer evaluation) as JSON validated against JSON Schemas, with estimated and actual cost. |
+| Interviewer guide | Evaluation guides with criteria, a 1–5 rubric, indicators, red flags, and follow-ups. |
 
-## Model configuration
+**Developer tools**
 
-Models, capabilities, and pricing come from `GET https://openrouter.ai/api/v1/models` (cached for one hour, with a refresh button). Each parameter has a slider and an exact-value field, a valid range, a recommended value, and an explanation:
+| Page | What it does |
+| --- | --- |
+| Model settings | Provider and model from the live OpenRouter catalog, licence label, open-weight filter, fallback model, every supported parameter, request preview, credits, and the session call log. |
+| Model lab | Compare parameter configurations on one task. |
+| Evaluation | LLM-as-a-judge evaluation of prompts and models on a dataset, with deterministic checks. |
+| Question memory | ChromaDB vector store: similarity thresholds, similarity check, generate-without-repeats demo, browse and delete. |
+| Security lab | Guard checks, LLM screen benchmark, and the security test suite. |
+| App review | LLM critique of the app's usability, security, and prompt engineering. |
 
-| Parameter | Range | Recommended | Sent when |
-| --- | --- | --- | --- |
-| temperature | 0–2 | 0.4 | supported |
-| max_tokens | 64 to the model's max | 2000 | supported (capped automatically) |
-| top_p | 0–1 | 1.0 | supported and changed from 1.0 |
-| top_k | 0–200 | 0 | supported and changed from 0 |
-| frequency_penalty, presence_penalty | −2 to 2 | 0 | supported and changed from 0 |
-| repetition_penalty | 0–2 | 1.0 | supported and changed from 1.0 |
-| min_p, top_a | 0–1 | 0 | supported and changed from 0 |
-| seed | integer | off | supported and enabled |
-| reasoning effort | the model's own `supported_efforts` | model default | supported |
+## Scripts
 
-Controls for unsupported parameters are disabled, and those parameters are never sent. Requests set `provider.require_parameters` so OpenRouter routes only to providers that honour every parameter sent. Otherwise providers can silently ignore them.
+```powershell
+uv run python scripts/run_demos.py all                 # live demos -> docs/demos/
+uv run python scripts/run_evaluation.py                # evaluation plan and cost estimate (add --yes to run)
+uv run python scripts/run_security_tests.py --live     # security suite -> docs/SECURITY_TEST_REPORT.md
+uv run python scripts/calibrate_similarity.py          # embedding similarity on labelled pairs
+```
 
-## Structured output
+## Documentation
 
-Schemas live in `interview_app/schemas.py`. When the model lists `structured_outputs`, the schema is sent as `response_format: json_schema` (strict). Otherwise JSON mode or prompting is used. Every response is validated server-side against the full schema (ranges, sizes, enums, no extra fields) and then against content rules such as unique IDs and matching difficulty. Strings are sanitised, and the document is wrapped with server-controlled metadata. Malformed or invalid output produces a clear error listing each violation, with the raw response available for inspection.
+| Document | Contents |
+| --- | --- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Component, chain, and LangGraph diagrams; context flow; security boundaries |
+| [docs/LANGCHAIN.md](docs/LANGCHAIN.md) | Packages, chains A–E, structured output, fallbacks, interview graph |
+| [docs/VECTOR_DB.md](docs/VECTOR_DB.md) | ChromaDB design, stored metadata, threshold calibration, duplicate vs similar vs new |
+| [docs/MODEL_COMPARISON.md](docs/MODEL_COMPARISON.md) | Selected open-weight models, open source vs open weight, licensing and deployment limitations, comparison status |
+| [docs/EVALUATION.md](docs/EVALUATION.md) | Dataset, deterministic checks, judge rubric, bias controls, limitations |
+| [docs/TESTING_REPORT.md](docs/TESTING_REPORT.md) | Test results, live verification, defects found and fixed |
+| [docs/SECURITY_TEST_REPORT.md](docs/SECURITY_TEST_REPORT.md) | 48 security tests with expected and actual behaviour |
+| [evals/dataset.json](evals/dataset.json) | Evaluation dataset (8 cases, 7 domains, 3 difficulty levels) |
 
-## Cost calculator
+## Code layout
 
-- **Estimated** (before the call): input tokens from the exact prompt and payload (about 4 characters per token), and output tokens from the task, count, and response depth. A worst case at the full `max_tokens` is also shown.
-- **Actual** (after the call): computed from returned `usage` × live per-token pricing, including cached-token pricing and request fees, alongside OpenRouter's own billed `usage.cost`.
-- Missing pricing is reported as "Unavailable", never guessed.
-
-## Reliability improvement (from the OpenRouter docs)
-
-Transient failures (HTTP 408, 429, and 5xx; timeouts; connection errors; errors inside an HTTP 200 body) are retried up to 3 times with exponential backoff and jitter, honouring `Retry-After`. If no provider supports every parameter (503 with `require_parameters`), the request is retried once without that guarantee and labelled. An optional fallback model is used when the primary model is unavailable. Authentication, credit, and moderation errors are never retried.
+```
+app.py                       navigation (Practice / Developer tools)
+app_pages/                   one file per page
+interview_app/
+  chains/                    LangChain: llm.py (ChatOpenRouter), base.py (chains, streaming), workflows.py (A–E), interview_graph.py (LangGraph)
+  chain_prompts.py, prompts.py         all prompts (shared security rules and canary)
+  chain_schemas.py, schemas.py         JSON Schemas, validation, trimming
+  evaluation/                checks, judge, runner, report
+  vectorstore.py, services.py          ChromaDB question memory
+  licensing.py               model licence classification and default models
+  model_config.py, openrouter.py, pricing.py   parameters, client, cost
+  security_guard.py, file_ingest.py, security_suite.py   security
+evals/dataset.json           evaluation dataset
+scripts/                     demos, evaluation, security tests, calibration
+tests/                       101 offline tests (fake models and embeddings)
+```
 
 ## Security model
 
-Deterministic checks are the enforcing layer; the LLM screen is advisory only.
-
-- **Input**: Unicode normalisation; removal of invisible, bidi, and control characters; neutralised chat-template tokens; length limits; and injection pattern checks. Score dictation is blocked. Other flags are passed to the model as metadata.
-- **Files**: extension allow-list plus content sniffing, a 2 MB size limit, PDF page and encryption limits, DOCX zip-bomb and XML-entity guards. Extracted text goes through the same input guard.
-- **Prompts**: trusted settings in the system prompt, untrusted text only as JSON data, and a canary token. Any response that echoes the canary is discarded.
-- **Output**: schema validation, per-field limits, and stripped Markdown images, link targets, and HTML.
-- **Operations**: the key stays server-side and is never displayed or logged; errors are mapped to fixed messages; each session is limited to 40 AI calls per 10 minutes.
-
-See `docs/SECURITY_TEST_REPORT.md` for the latest test results. These are application-level boundaries, not a guarantee against every prompt-injection or model-output risk.
+Deterministic checks enforce; LLM checks only advise. Input is sanitised and pattern-checked at the UI and again inside every chain. Prompts keep trusted settings and untrusted data separate and carry a canary token. Output is schema-validated and sanitised, including incrementally during streaming. The API key stays server-side, and only generated question text and its metadata are stored. See the security test report for details. These are application-level boundaries, not a guarantee against every prompt-injection risk.

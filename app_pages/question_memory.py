@@ -88,9 +88,13 @@ with demo_tab:
         st.caption(f"Sent {len(result.avoid_used)} stored question(s) as \"avoid\" · {len(result.outputs)} generation round(s)")
         for item in result.rejected:
             with st.container(border=True):
-                st.badge(f"Rejected duplicate · {item['similarity']:.2f}", color="red")
+                if item["novelty"] == "duplicate":
+                    st.badge(f"Rejected duplicate · {item['similarity']:.2f}", color="red")
+                else:
+                    st.badge(f"Rejected · {item['novelty']}", color="red")
                 st.markdown(f"~~{item['question']}~~")
-                st.caption(f"Too close to: {item['nearest']}")
+                if item["nearest"]:
+                    st.caption(f"Too close to: {item['nearest']}")
         for item in result.accepted:
             with st.container(border=True):
                 st.badge(f"{item['novelty'].capitalize()} · {item['similarity']:.2f}", color=LABEL_COLORS[item["novelty"]])

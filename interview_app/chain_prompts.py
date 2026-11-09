@@ -110,6 +110,7 @@ def followup_chain_prompt(profile: PrepProfile) -> str:
 Use "latest_turn" (the last question, the candidate's answer, and its evaluation), "recent_turns", "memory" (one line per older turn), and "topics_covered".
 - Choose "follow_up" when the latest answer was vague, partially correct, or revealed a gap worth probing; the follow-up must build directly on what the candidate said.
 - Choose "new_topic" when the topic is exhausted (a strong answer, or already probed twice) or the answer was off-track; pick a topic NOT in "topics_covered" and not similar to anything in "avoid".
+- If "must_change_topic" is true, you MUST choose "new_topic" (the current topic has already been probed enough).
 - Pitch the question at "target_difficulty", which the application set from the candidate's scores.
 - Ask one question only. Do not include feedback; that is delivered separately.""",
         """OUTPUT SCHEMA
@@ -152,8 +153,8 @@ Summarise the interview from "turns" (each has the question, topic, difficulty, 
   "overall_evaluation": string, 3-5 sentences,
   "readiness": "ready" | "nearly ready" | "needs development" | "not yet ready",
   "competency_scores": array of 2-8 {"competency": string, "score": integer 1-5, "comment": string},
-  "strengths": array of 1-5 strings,
-  "knowledge_gaps": array of 1-6 strings,
+  "strengths": array of 0-5 strings,
+  "knowledge_gaps": array of 0-6 strings,
   "learning_plan": array of 2-6 {"focus": string, "action": string, "timeframe": string}
 }""",
     )

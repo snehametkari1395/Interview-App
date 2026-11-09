@@ -24,7 +24,7 @@ from langchain_core.runnables import Runnable, RunnableLambda
 
 from interview_app.chains.llm import ModelSpec, build_llm
 from interview_app.pricing import CostBreakdown, actual_cost
-from interview_app.schemas import sanitize_tree, validate_against
+from interview_app.schemas import sanitize_tree, trim_to_schema, validate_against
 from interview_app.security_guard import (
     PROMPT_CANARY,
     GuardError,
@@ -48,6 +48,7 @@ class ChainOutput:
     cost: CostBreakdown | None = None
     output_mode: str = "prompt"
     input_flags: tuple[str, ...] = ()
+    repairs: tuple[str, ...] = ()
 
     def usage_record(self) -> dict:
         return {
@@ -141,7 +142,7 @@ class StructuredChain:
                 raise GuardError("The model used its whole output budget before answering. Increase max output tokens or lower reasoning effort.")
             raise GuardError("The model returned an empty response. Please try again.")
         try:
-            data = parse_json_object(content)
+            data, repairs = trim_to_schema(parse_json_object(content), self.schema)
             validate_against(data, self.schema, "response")
             problems = self.semantic_check(data) if self.semantic_check else []
             if problems:
@@ -166,6 +167,7 @@ class StructuredChain:
             cost=actual_cost(served, caps.pricing, usage),
             output_mode=self.output_mode,
             input_flags=getattr(self, "_flags", ()),
+            repairs=tuple(repairs),
         )
 
     def invoke(self, payload: dict) -> ChainOutput:

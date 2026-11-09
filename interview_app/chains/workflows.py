@@ -55,7 +55,10 @@ def _difficulty_rule(difficulty: str):
     return check
 
 
-def question_chain(spec: ModelSpec, profile: PrepProfile, version: str = "v2-improved", count: int = 3) -> StructuredChain:
+def question_chain(spec: ModelSpec, profile: PrepProfile, version: str = "v2-improved", count: int = 3,
+                   enforce_difficulty: bool = False) -> StructuredChain:
+    """Chain B. With ``enforce_difficulty`` the whole set is rejected if any label differs (strict mode);
+    by default mislabelled items are handled by the caller (dropped and regenerated, or measured in evaluation)."""
     return StructuredChain(
         system_prompt=question_chain_prompt(profile, version),
         schema=QUESTION_SET_SCHEMA,
@@ -63,7 +66,7 @@ def question_chain(spec: ModelSpec, profile: PrepProfile, version: str = "v2-imp
         spec=spec.with_params(spec.params.with_min_tokens(400 + 450 * count)),
         feature=f"B · Question generation ({version})",
         guard_fields={"topic_hint": MAX_HINT_CHARS},
-        semantic_check=_difficulty_rule(profile.difficulty),
+        semantic_check=_difficulty_rule(profile.difficulty) if enforce_difficulty else None,
     )
 
 
@@ -109,7 +112,8 @@ def generate_unique_questions(
 
     1. Retrieve the stored questions nearest to this request and send them as "avoid".
     2. Generate. Check each question against the vector store and this batch.
-    3. Duplicates are rejected and regeneration is requested (up to ``max_rounds`` more times).
+    3. Duplicates and questions labelled at the wrong difficulty are rejected, and replacements are
+       requested (up to ``max_rounds`` more times).
     4. Accepted questions are labelled new or similar and stored with their metadata.
     """
     query = " ".join(filter(None, [profile.role, topic_hint, focus, " ".join((job_context or {}).get("interview_topics", [])[:5])]))
@@ -132,6 +136,10 @@ def generate_unique_questions(
         output = chain.invoke(payload)
         result.outputs.append(output)
         for item in output.data["questions"]:
+            if item["difficulty"] != profile.difficulty:
+                # The model labelled this question as a different level: drop it and ask for a replacement.
+                result.rejected.append({**item, "novelty": f"wrong difficulty ({item['difficulty']})", "nearest": "", "similarity": 0.0})
+                continue
             batch = [accepted["question"] for accepted in result.accepted] if not store else None
             check: NoveltyCheck = memory.check(item["question"], thresholds, domain=profile.domain, extra_texts=batch)
             item = {**item, "novelty": check.label, "nearest": check.best.text if check.best else "", "similarity": check.similarity}

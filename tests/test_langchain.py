@@ -67,10 +67,29 @@ class ChainTests(FakeModelTestCase):
         with self.assertRaises(GuardError):
             workflows.evaluation_chain(fakes.make_spec(), PROFILE).invoke({"interview_question": "Q?", "candidate_answer": "An answer."})
 
-    def test_chain_b_rejects_wrong_difficulty(self):
+    def test_benign_overflow_is_trimmed_not_rejected(self):
+        summary = dict(fakes.SUMMARY, knowledge_gaps=[f"gap {i}" for i in range(9)], overall_evaluation="x" * 2000)
+        self.use_fakes({"interview_summary": [summary]})
+        output = workflows.summary_chain(fakes.make_spec(), PROFILE).invoke({"turns": [], "difficulty_path": []})
+        self.assertEqual(len(output.data["knowledge_gaps"]), 6)
+        self.assertEqual(len(output.data["overall_evaluation"]), 1500)
+        self.assertEqual(len(output.repairs), 2)
+
+    def test_chain_b_strict_mode_rejects_wrong_difficulty(self):
         self.use_fakes({"interview_question_set": [{"questions": [fakes.question("What is a Python list comprehension?", "Easy")]}]})
         with self.assertRaises(SchemaValidationError):
-            workflows.question_chain(fakes.make_spec(), PROFILE).invoke({"number_of_questions": 1, "avoid": []})
+            workflows.question_chain(fakes.make_spec(), PROFILE, enforce_difficulty=True).invoke({"number_of_questions": 1, "avoid": []})
+
+    def test_mislabelled_questions_are_dropped_and_replaced(self):
+        self.use_fakes({"interview_question_set": [
+            {"questions": [fakes.question("What is REST and when would you use it?", "Easy"),
+                           fakes.question("How would you version a public API without breaking existing clients?")]},
+            {"questions": [fakes.question("How would you paginate a large result set in an API?")]},
+        ]})
+        result = workflows.generate_unique_questions(fakes.make_spec(), PROFILE, count=2, memory=fakes.memory(), thresholds=Thresholds(0.8, 0.5))
+        self.assertEqual(len(result.accepted), 2)
+        self.assertEqual(result.rejected[0]["novelty"], "wrong difficulty (Easy)")
+        self.assertEqual(len(result.outputs), 2)
 
     def test_injection_flags_are_passed_to_the_model(self):
         self.use_fakes({"interview_evaluation": [fakes.evaluation(2)]})
@@ -173,6 +192,25 @@ class InterviewGraphTests(FakeModelTestCase):
         state = graph.invoke({"pending_answer": "It serialises bytecode execution.", "finish_requested": True}, config, context=deps)
         self.assertEqual(state["status"], "finished")
         self.assertEqual(len(state["turns"]), 1)
+
+    def test_topic_changes_after_two_follow_ups(self):
+        self.use_fakes({
+            "interview_question_set": [{"questions": [fakes.question("Explain how HTTP caching headers work.", topic="HTTP caching")]}],
+            "interview_evaluation": [fakes.evaluation(3)] * 3,
+            "interview_next_question": [
+                fakes.followup("How does ETag validation avoid re-downloading resources?", "follow_up", "ETags"),
+                fakes.followup("When would you choose Cache-Control max-age over revalidation?", "follow_up", "Cache-Control"),
+                fakes.followup("What happens with conflicting stale-while-revalidate directives?", "follow_up", "Stale content"),
+                fakes.followup("How would you design pagination for a public REST API?", "new_topic", "Pagination"),
+            ],
+        })
+        graph, config = build_interview_graph(), run_config("t3")
+        deps = Dependencies(fakes.make_spec(), fakes.memory(), Thresholds(0.9, 0.5))
+        graph.invoke(initial_state(PROFILE, focus="Balanced", topic_hint="", company="", job_context=None, max_questions=6), config, context=deps)
+        for answer in ("Caching uses headers.", "ETags compare versions.", "max-age avoids requests."):
+            state = graph.invoke({"pending_answer": answer}, config, context=deps)
+        self.assertEqual(state["last_decision"]["decision"], "new_topic")  # third follow-up was refused and regenerated
+        self.assertEqual(state["current"]["topic"], "Pagination")
 
     def test_difficulty_rules(self):
         self.assertEqual(next_difficulty("Medium", [("Medium", 2)]), "Easy")

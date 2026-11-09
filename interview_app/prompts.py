@@ -264,8 +264,8 @@ Evaluate the candidate answer to the interview question in the user message. Bas
   "technical_accuracy": {"score": integer 1-5, "comment": string},
   "communication_skills": {"score": integer 1-5, "comment": string},
   "problem_solving": {"score": integer 1-5, "comment": string},
-  "strengths": array of 1-5 strings,
-  "weaknesses": array of 1-5 strings,
+  "strengths": array of 0-5 strings (empty if nothing was good),
+  "weaknesses": array of 0-5 strings,
   "missing_concepts": array of 0-6 strings,
   "improvement_suggestions": array of 1-5 strings,
   "recommended_follow_up_questions": array of 1-4 strings

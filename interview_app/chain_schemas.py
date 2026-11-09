@@ -66,8 +66,8 @@ SUMMARY_SCHEMA = _object({
         "maxItems": 8,
         "items": _object({"competency": _string(1, 100), "score": _SCORE, "comment": _string(1, 400)}),
     },
-    "strengths": _string_list(1, 5),
-    "knowledge_gaps": _string_list(1, 6),
+    "strengths": _string_list(0, 5),
+    "knowledge_gaps": _string_list(0, 6),
     "learning_plan": {
         "type": "array",
         "minItems": 2,

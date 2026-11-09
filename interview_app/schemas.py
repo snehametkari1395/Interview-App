@@ -65,8 +65,9 @@ EVALUATION_MODEL_SCHEMA = _object({
     "technical_accuracy": _DIMENSION,
     "communication_skills": _DIMENSION,
     "problem_solving": _DIMENSION,
-    "strengths": _string_list(1, 5),
-    "weaknesses": _string_list(1, 5),
+    # Empty lists are legitimate: an off-topic answer has no strengths; an excellent one may have no weaknesses.
+    "strengths": _string_list(0, 5),
+    "weaknesses": _string_list(0, 5),
     "missing_concepts": _string_list(0, 6),
     "improvement_suggestions": _string_list(1, 5),
     "recommended_follow_up_questions": _string_list(1, 4),
@@ -136,6 +137,31 @@ def validate_against(instance, schema: dict, what: str) -> None:
             "Try again, or choose a model that supports structured outputs.",
             errors,
         )
+
+
+def trim_to_schema(node, schema: dict, path: str = "", repairs: list[str] | None = None):
+    """Repair benign overflow: truncate arrays above maxItems and strings above maxLength.
+
+    Strict structured-output modes cannot enforce these limits (they are stripped from the wire
+    schema), so a model may return one item too many. That is trimmed and recorded; anything
+    structural (missing fields, wrong types, invalid enum values) is left for validation to reject.
+    """
+    repairs = repairs if repairs is not None else []
+    if isinstance(node, dict) and schema.get("type") == "object":
+        properties = schema.get("properties", {})
+        return {key: trim_to_schema(value, properties[key], f"{path}/{key}", repairs)[0] if key in properties else value
+                for key, value in node.items()}, repairs
+    if isinstance(node, list) and schema.get("type") == "array":
+        limit = schema.get("maxItems")
+        if isinstance(limit, int) and len(node) > limit:
+            repairs.append(f"{path or '/'}: trimmed {len(node)} items to {limit}")
+            node = node[:limit]
+        item_schema = schema.get("items", {})
+        return [trim_to_schema(item, item_schema, f"{path}/{index}", repairs)[0] for index, item in enumerate(node)], repairs
+    if isinstance(node, str) and isinstance(schema.get("maxLength"), int) and len(node) > schema["maxLength"]:
+        repairs.append(f"{path}: shortened text to {schema['maxLength']} characters")
+        return node[: schema["maxLength"]].rstrip(), repairs
+    return node, repairs
 
 
 def sanitize_tree(node):

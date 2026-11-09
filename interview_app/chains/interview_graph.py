@@ -35,6 +35,7 @@ from interview_app.vectorstore import QuestionMemory, Thresholds
 LEVELS = ("Easy", "Medium", "Hard")
 MAX_ANSWER_IN_CONTEXT = 2000
 MAX_PREVIOUS_ANSWER = 600
+MAX_CONSECUTIVE_FOLLOW_UPS = 2
 
 
 class InterviewState(TypedDict, total=False):
@@ -85,6 +86,15 @@ def next_difficulty(current: str, history: list[tuple[str, int]]) -> str:
     if len(at_level) >= 2 and at_level[-1] >= 4 and at_level[-2] >= 4 and index < len(LEVELS) - 1:
         return LEVELS[index + 1]
     return current
+
+
+def consecutive_follow_ups(turns: list[dict]) -> int:
+    count = 0
+    for turn in reversed(turns):
+        if turn.get("source") != "follow_up":
+            break
+        count += 1
+    return count
 
 
 def memory_line(number: int, turn: dict) -> str:
@@ -199,6 +209,9 @@ def plan_next(state: InterviewState, runtime: Runtime[Dependencies]) -> dict:
         "target_difficulty": profile.difficulty,
         "avoid": state.get("asked", [])[-12:],
     }
+    must_change_topic = consecutive_follow_ups(turns) >= MAX_CONSECUTIVE_FOLLOW_UPS
+    if must_change_topic:
+        payload["must_change_topic"] = True  # deterministic rule; the model cannot count reliably
     usage = list(state.get("usage", []))
     decision = None
     for _attempt in range(3):
@@ -206,13 +219,14 @@ def plan_next(state: InterviewState, runtime: Runtime[Dependencies]) -> dict:
         usage.append(output.usage_record())
         decision = output.data
         check = deps.memory.check(decision["next_question"], deps.thresholds, domain=profile.domain, extra_texts=state.get("asked", []))
-        # Follow-ups intentionally stay on the same topic; only new topics must be novel.
-        if decision["decision"] == "follow_up" or check.label != "duplicate":
-            decision["novelty"] = check.label
+        decision["novelty"] = check.label
+        # Follow-ups may be similar to earlier questions (same topic), but never near-duplicates.
+        ignored_rule = must_change_topic and decision["decision"] == "follow_up"
+        if check.label != "duplicate" and not ignored_rule:
             break
         payload["avoid"] = [*payload["avoid"], decision["next_question"]][-14:]
-    else:
-        decision["novelty"] = "duplicate"
+        if ignored_rule:
+            payload["must_change_topic"] = True
     if decision["decision"] == "new_topic":
         deps.memory.add(decision["next_question"], {
             "domain": profile.domain, "role": profile.role, "company": state.get("company", ""),
