@@ -62,6 +62,15 @@ Full test results: [docs/TESTING_REPORT.md](docs/TESTING_REPORT.md).
    uv run python -m unittest discover -s tests -t .
    ```
 
+## Deploy to Streamlit Community Cloud
+
+1. Sign in at [share.streamlit.io](https://share.streamlit.io) with GitHub and choose **Create app → Deploy a public app from GitHub**.
+2. Repository `snehametkari1395/Interview-App`, branch `main`, main file `app.py`. Under **Advanced settings**, choose Python 3.12.
+3. In **Secrets**, paste the contents of [.streamlit/secrets.toml.example](.streamlit/secrets.toml.example) with your real key. Set `APP_ACCESS_CODE` so strangers cannot spend your OpenRouter credits.
+4. Deploy. Dependencies install from `requirements.txt` (exported from `uv.lock`).
+
+Notes: the question memory (`data/chroma/`) is stored on the app's temporary disk and resets when the app restarts. Each browser session is limited to 40 AI calls per 10 minutes; your OpenRouter spending limit caps total usage.
+
 ## Pages
 
 **Practice**
