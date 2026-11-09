@@ -1,22 +1,20 @@
-# Testing report (Hard-level features)
+# Testing report (advanced features)
 
-Date: 2026-11-09 · Branch `advanced-interview-features`
+Date: 2026-11-09
 
 ## Summary
 
 | Area | Result |
 | --- | --- |
-| Automated tests (offline, no network) | **101 / 101 pass** |
+| Automated tests (offline, no network) | **93 / 93 pass** |
 | Security suite | **47 / 48 pass** (the one failure is a documented known gap, SEC-A08) |
-| Live LangChain chains A–E | Pass (stand-in model) |
-| Live multi-turn interview through LangGraph | Pass (stand-in model) |
+| Live LangChain chains A–E | Pass |
+| Live multi-turn interview through LangGraph | Pass |
 | Live semantic duplicate detection | Pass |
 | Live error handling: blocked model, automatic fallback | Pass |
 | Existing features | All pages render; original flows covered by tests |
-| **Open-weight models live** | **Not yet run**: blocked by the account's OpenRouter guardrail (see below) |
-| **Live model and prompt evaluation** | **Not yet run**: requires the open-weight models and judge |
 
-"Stand-in model" means `openai/gpt-4o-mini`, used only because every open-weight model was blocked for this account. Every stand-in output is labelled as such.
+Live runs used the configured model, `openai/gpt-4o-mini`.
 
 ## Automated tests
 
@@ -28,8 +26,7 @@ Run with `uv run python -m unittest discover -s tests -t .` (about 10 seconds, n
 | `test_features` | 33 | catalog, question bank, sanitisation, injection rules, output validation, secrets, rate limit, request building, prompts, comparison metrics, all original pages, practice flow |
 | `test_engine` | 27 | parameter filtering, JSON Schemas, cost maths, retries and backoff, failover, structured pipeline, settings page |
 | `test_security_suite` | 7 | security suite (deterministic part), file ingestion, upload page |
-| `test_langchain` | 17 | chains A–E with fake chat models, guard inside chains, schema and canary rejection, benign-overflow trimming, mislabelled-difficulty replacement, de-duplication (decorators then generators), streaming sanitisation, full three-turn graph run, early finish, follow-up limit, difficulty rules, licence classification |
-| `test_evaluation` | 7 | dataset integrity, deterministic checks, end-to-end evaluation with fake generator and judge, noise threshold, failed-generation handling, Evaluation page |
+| `test_langchain` | 16 | chains A–E with fake chat models, guard inside chains, schema and canary rejection, benign-overflow trimming, mislabelled-difficulty replacement, de-duplication (decorators then generators), streaming sanitisation, full three-turn graph run, early finish, follow-up limit, difficulty rules |
 | `test_pages_advanced` | 5 | every new page renders; full Interview chat flow (start, streamed feedback, next question, end, summary); blocked answer never reaches the graph; Job description via chain A; Question memory check |
 
 Fakes (`tests/fakes.py`): LangChain's `GenericFakeChatModel` returns scripted responses per chain, and a deterministic bag-of-words `EmbeddingFunction` replaces the 80 MB embedding model.
@@ -39,20 +36,20 @@ Fakes (`tests/fakes.py`): LangChain's `GenericFakeChatModel` returns scripted re
 | Scenario | Evidence | Outcome |
 | --- | --- | --- |
 | Chains A–E individually | [demos/langchain_chains.md](demos/langchain_chains.md) | All five in strict `json_schema` mode; token usage and OpenRouter-billed cost returned per call; $0.0017 total |
-| Complete multi-turn interview | [demos/interview_transcript.md](demos/interview_transcript.md) | 5 turns with a simulated candidate (strong, strong, partial, weak, injection). Scores 4, 4, 3, 2, 3; difficulty Medium → Hard → Medium; follow-ups and new topics chosen by chain D; injection flagged and not rewarded; summary and learning plan produced; 17 calls, $0.0049 |
-| Semantic duplicate detection | [demos/duplicate_detection.md](demos/duplicate_detection.md) | Reworded decorators question 0.928 (duplicate); generators 0.573 (similar, kept); chain B avoided the stored question and produced a generators question |
+| Complete multi-turn interview | [demos/interview_transcript.md](demos/interview_transcript.md) | 5 turns with a simulated candidate (strong, strong, partial, weak, injection attempt). Scores 4, 4, 3, 1, 3; difficulty Medium → Medium → Hard → Hard → Medium; chain D chose follow-ups and new topics; the injection was flagged and not rewarded; summary and learning plan produced; 19 calls, $0.0055 |
+| Semantic duplicate detection | [demos/duplicate_detection.md](demos/duplicate_detection.md) | Reworded decorators question 0.928 (duplicate). Chain B output: a mislabelled-difficulty question and a decorator duplicate (0.669) were rejected; a generators question (0.461, similar) and a context-managers question (0.406, new) were accepted |
 | Blocked model, no fallback | console | `NotFoundResponseError` mapped to a clear, safe message |
 | Blocked model with fallback configured | console | LangChain `with_fallbacks` served the request from the fallback model |
 | Live jailbreak attempts | [SECURITY_TEST_REPORT.md](SECURITY_TEST_REPORT.md) | 8/8 resisted |
 
 ## Defects found by live testing, and fixes
 
-Offline tests with fake models passed before these were found; each was reproduced live, fixed, and given a regression test.
+Offline tests with fake models passed before these were found. Each was reproduced live, fixed, and given a regression test.
 
 | # | Found | Problem | Fix |
 | --- | --- | --- | --- |
-| 1 | Account probe | Every open-weight model blocked by the workspace guardrail; the new default model would have broken every feature | Reverted the configured model to the working stand-in; documented; clearer 404 message |
-| 2 | Chain B live | The model labelled one question "Easy" in a Medium set, and the whole valid set was rejected | Mislabelled questions are dropped and regenerated; evaluation measures the label instead of rejecting |
+| 1 | Account probe | The account's OpenRouter guardrail blocked the planned default model, which would have broken every AI feature | Kept `openai/gpt-4o-mini` as the default; the 404 message now explains guardrail blocks |
+| 2 | Chain B live | The model labelled one question "Easy" in a Medium set, and the whole valid set was rejected | Mislabelled questions are dropped and regenerated |
 | 3 | Chain C live | An off-topic answer correctly had no strengths, but the schema required at least one | `strengths`/`weaknesses` (and summary `strengths`/`knowledge_gaps`) may be empty |
 | 4 | Chain E live | A valid summary listed 7 knowledge gaps (maximum 6), and strict mode cannot enforce maximum lengths | Benign overflow is trimmed and recorded as a repair; structural errors still fail |
 | 5 | Interview demo | Fixed scripted answers did not match generated questions | A simulated candidate answers each actual question at a planned quality |
@@ -63,7 +60,7 @@ Offline tests with fake models passed before these were found; each was reproduc
 
 ## Existing features
 
-The original features (practice room, job description, structured output, interviewer guide, model settings, model lab, security lab, app review) are covered by the original page tests, which all pass after the navigation restructure. The practice room's "AI-generated" source now goes through chain B with de-duplication and still falls back to the curated bank on any failure. The Job description page now uses chain A and keeps all earlier output (skills, likely questions, prep plan) plus competencies, topics, and company.
+The original features (practice room, job description, structured output, interviewer guide, model settings, model lab, security lab, app review) are covered by the original page tests, which all pass after the navigation restructure. The practice room's "AI-generated" source now goes through chain B with de-duplication and still falls back to the curated bank on any failure. The Job description page now uses chain A and keeps all earlier output (skills, likely questions, prep plan), adding competencies, topics, and company.
 
 ## Error handling and invalid input
 
@@ -71,17 +68,8 @@ The original features (practice room, job description, structured output, interv
 - Chain inputs: the guard runs inside every chain, so injection through any field (for example the topic hint) is blocked even if a page forgot to check (SEC-A14).
 - Model output: malformed JSON, non-objects, wrong shape, errors inside HTTP 200, truncation, canary echoes, schema violations, oversize fields (security suite D), and benign overflow (trimmed).
 - Streaming: exfiltration links and split canary tokens are stopped before reaching the browser (SEC-D14, SEC-D15).
-- Provider: blocked or unknown model, 503 with `require_parameters`, transient errors (retries and fallbacks); a failed interview step keeps the answer and offers Retry.
+- Provider: blocked or unknown model, 503 with `require_parameters`, and transient errors (retries and fallbacks). A failed interview step keeps the answer and offers Retry.
 
-## Not yet verified (requires guardrail change)
+## Known behaviour
 
-1. Open-weight models live (Qwen3-235B, DeepSeek V3.2, Mistral Small 3.2) in the app, demos, and comparison.
-2. LLM-as-a-judge evaluation with Kimi K2 (model and prompt comparison, 96 calls, estimated $0.30).
-
-Commands, once the models are allowed at https://openrouter.ai/workspaces/default/guardrails:
-
-```powershell
-uv run python scripts/run_evaluation.py --yes
-uv run python scripts/run_demos.py all
-uv run python scripts/run_security_tests.py --live
-```
+If chain D produces a near-duplicate three times in a row, the third attempt is used and labelled "duplicate" in the transcript rather than failing the turn (seen once in the interview demo, turn 4).

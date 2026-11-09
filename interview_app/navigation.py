@@ -14,7 +14,6 @@ PAGES = (
     ("app_pages/interviewer_guide.py", "Interviewer guide", ":material/fact_check:", PRACTICE),
     ("app_pages/model_settings.py", "Model settings", ":material/settings:", DEVELOPER),
     ("app_pages/model_lab.py", "Model lab", ":material/tune:", DEVELOPER),
-    ("app_pages/evaluation.py", "Evaluation", ":material/insights:", DEVELOPER),
     ("app_pages/question_memory.py", "Question memory", ":material/database:", DEVELOPER),
     ("app_pages/security_lab.py", "Security lab", ":material/shield:", DEVELOPER),
     ("app_pages/app_review.py", "App review", ":material/rate_review:", DEVELOPER),

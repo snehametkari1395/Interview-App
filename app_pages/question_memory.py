@@ -3,7 +3,6 @@ import streamlit as st
 from interview_app.catalog import DOMAINS
 from interview_app.chains.llm import spec_from_session
 from interview_app.chains.workflows import generate_unique_questions
-from interview_app.licensing import EMBEDDING_MODEL
 from interview_app.openrouter import get_api_key, reserve_calls
 from interview_app.security_guard import GuardError, guard_untrusted_input
 from interview_app.services import current_thresholds, get_question_memory, record_chain_usage
@@ -17,7 +16,7 @@ render_sidebar()
 st.badge("VECTOR DATABASE", icon=":material/database:", color="green")
 st.title("Question memory", icon=":material/database:")
 st.caption(
-    f"Generated questions are embedded locally ({EMBEDDING_MODEL.note.split(',')[0]}, {EMBEDDING_MODEL.licence}) and stored in ChromaDB, "
+    "Generated questions are embedded locally (sentence-transformers/all-MiniLM-L6-v2, Apache-2.0) and stored in ChromaDB, "
     "so new questions can be checked for semantic repeats. Candidate answers are never stored."
 )
 

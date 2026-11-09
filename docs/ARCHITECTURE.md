@@ -1,6 +1,6 @@
 # Architecture
 
-Fieldnotes is a Streamlit application backed by OpenRouter. The original one-shot features (practice room, job description, structured output, interviewer guide) are preserved. The advanced features add a LangChain/LangGraph layer, a ChromaDB vector store, and an evaluation framework on top of the same security, model-configuration, and cost modules.
+Fieldnotes is a Streamlit application backed by OpenRouter. The original one-shot features (practice room, job description, structured output, interviewer guide) are preserved. The advanced features add a LangChain/LangGraph layer and a ChromaDB vector store on top of the same security, model-configuration, and cost modules.
 
 ## Components
 
@@ -9,7 +9,7 @@ flowchart TB
     subgraph UI["Streamlit UI (app.py + app_pages/, grouped navigation)"]
         direction LR
         P["Practice<br/>Practice room · Interview chat · Job description<br/>Structured output · Interviewer guide"]
-        D["Developer tools<br/>Model settings · Model lab · Evaluation<br/>Question memory · Security lab · App review"]
+        D["Developer tools<br/>Model settings · Model lab<br/>Question memory · Security lab · App review"]
     end
 
     subgraph LC["LangChain / LangGraph layer (interview_app/chains/)"]
@@ -23,14 +23,13 @@ flowchart TB
         PR["prompts.py · chain_prompts.py<br/>security rules + canary"]
         SC["schemas.py · chain_schemas.py<br/>JSON Schemas, trim + validate"]
         SG["security_guard.py<br/>sanitise · injection rules · output cleaning"]
-        MC["model_config.py · licensing.py<br/>capability-aware params · licence table"]
+        MC["model_config.py<br/>capability-aware params"]
         PRC["pricing.py<br/>estimated + actual cost"]
         OR["openrouter.py<br/>direct client: retries, failover, catalog"]
     end
 
     subgraph DATA["Data"]
         VS["vectorstore.py<br/>ChromaDB (data/chroma) + all-MiniLM-L6-v2 (local ONNX)"]
-        EV["evaluation/ + evals/dataset.json<br/>checks · judge · runner · report"]
     end
 
     API[("OpenRouter API<br/>chat completions · models · key")]
@@ -39,7 +38,6 @@ flowchart TB
     P --> W
     P --> OR
     D --> MC
-    D --> EV
     D --> VS
     G --> W --> B --> L --> API
     W --> VS
@@ -50,7 +48,6 @@ flowchart TB
     L --> MC
     OR --> API
     OR --> MC
-    EV --> W
 ```
 
 - **Original features** call `openrouter.py` directly (retries, `require_parameters` routing, failover, cost).

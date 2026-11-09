@@ -51,17 +51,7 @@ If the text is not a job description, set is_job_description to false, explain i
     )
 
 
-QUESTION_PROMPT_VERSIONS = ("v1-original", "v2-improved")
-
-# v1 reproduces the app's original question-generation instructions, for the prompt comparison.
-_QUESTION_TASK_V1 = """TASK
-Write the number of interview questions requested in the user message for the requested focus.
-- The difficulty level must visibly change complexity: follow the difficulty question guidance exactly.
-- "Balanced" focus mixes technical, scenario, and behavioral questions. Other focuses concentrate on one kind.
-- Each question must be self-contained, answerable verbally in a few minutes, and different from the others and from any listed in "avoid".
-- Never include the answer in the question."""
-
-_QUESTION_TASK_V2 = """TASK
+_QUESTION_TASK = """TASK
 Write the number of interview questions requested in "number_of_questions".
 Grounding:
 - If "job_context" is present, every question must target a skill, competency, or topic from it. Name the targeted item in "topic".
@@ -79,9 +69,9 @@ Content:
 Before answering, silently check each question against the difficulty definition and the avoid list."""
 
 
-def question_chain_prompt(profile: PrepProfile, version: str = "v2-improved") -> str:
+def question_chain_prompt(profile: PrepProfile) -> str:
     """Chain B: question generation."""
-    task = _QUESTION_TASK_V2 if version == "v2-improved" else _QUESTION_TASK_V1
+    task = _QUESTION_TASK
     return _compose(
         f"You design interview questions for {profile.role} candidates in {profile.domain}.",
         context_block(profile),

@@ -55,16 +55,16 @@ def _difficulty_rule(difficulty: str):
     return check
 
 
-def question_chain(spec: ModelSpec, profile: PrepProfile, version: str = "v2-improved", count: int = 3,
+def question_chain(spec: ModelSpec, profile: PrepProfile, count: int = 3,
                    enforce_difficulty: bool = False) -> StructuredChain:
     """Chain B. With ``enforce_difficulty`` the whole set is rejected if any label differs (strict mode);
     by default mislabelled items are handled by the caller (dropped and regenerated, or measured in evaluation)."""
     return StructuredChain(
-        system_prompt=question_chain_prompt(profile, version),
+        system_prompt=question_chain_prompt(profile),
         schema=QUESTION_SET_SCHEMA,
         schema_name="interview_question_set",
         spec=spec.with_params(spec.params.with_min_tokens(400 + 450 * count)),
-        feature=f"B · Question generation ({version})",
+        feature="B · Question generation",
         guard_fields={"topic_hint": MAX_HINT_CHARS},
         semantic_check=_difficulty_rule(profile.difficulty) if enforce_difficulty else None,
     )
@@ -103,7 +103,6 @@ def generate_unique_questions(
     job_context: dict | None = None,
     company: str = "",
     extra_avoid: list[str] | None = None,
-    version: str = "v2-improved",
     store: bool = True,
     max_rounds: int = 2,
     source: str = "question generation",
@@ -123,7 +122,7 @@ def generate_unique_questions(
         needed = count - len(result.accepted)
         if needed <= 0:
             break
-        chain = question_chain(spec, profile, version, needed)
+        chain = question_chain(spec, profile, needed)
         payload: dict = {
             "number_of_questions": needed,
             "focus": f"{focus} ({FOCUS_KIND.get(focus, 'balanced mix')})",

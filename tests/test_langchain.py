@@ -1,4 +1,4 @@
-"""Offline tests for the LangChain chains, LangGraph interview workflow, vector memory, and licensing."""
+"""Offline tests for the LangChain chains, LangGraph interview workflow, and vector memory."""
 
 import unittest
 from unittest import mock
@@ -15,7 +15,6 @@ from interview_app.chains.interview_graph import (
     run_config,
     Dependencies,
 )
-from interview_app.licensing import OSI_OPEN, PROPRIETARY, RESTRICTED, UNKNOWN, classify
 from interview_app.schemas import SchemaValidationError
 from interview_app.security_guard import PROMPT_CANARY, GuardError
 from interview_app.vectorstore import Thresholds
@@ -217,16 +216,6 @@ class InterviewGraphTests(FakeModelTestCase):
         self.assertEqual(next_difficulty("Medium", [("Medium", 4), ("Medium", 5)]), "Hard")
         self.assertEqual(next_difficulty("Hard", [("Medium", 5), ("Hard", 4)]), "Hard")
         self.assertEqual(next_difficulty("Easy", [("Easy", 1)]), "Easy")
-
-
-class LicensingTests(unittest.TestCase):
-    def test_classification(self):
-        self.assertEqual(classify("qwen/qwen3-235b-a22b-2507").category, OSI_OPEN)
-        self.assertEqual(classify("qwen/qwen-plus").category, PROPRIETARY)
-        self.assertEqual(classify("meta-llama/llama-3.3-70b-instruct").category, RESTRICTED)
-        self.assertEqual(classify("openai/gpt-4o-mini").category, PROPRIETARY)
-        self.assertEqual(classify("openai/gpt-oss-120b:free").category, OSI_OPEN)
-        self.assertEqual(classify("someone/new-model").category, UNKNOWN)
 
 
 if __name__ == "__main__":

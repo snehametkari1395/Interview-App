@@ -1,6 +1,6 @@
 """Live demonstrations of the advanced features. Each writes a Markdown record to docs/demos/.
 
-    uv run python scripts/run_demos.py all                       # default open-weight model
+    uv run python scripts/run_demos.py all                       # configured model
     uv run python scripts/run_demos.py interview --model deepseek/deepseek-v3.2
     uv run python scripts/run_demos.py duplicates
 
@@ -30,9 +30,8 @@ from interview_app.chains.llm import ModelSpec  # noqa: E402
 from interview_app.chains.workflows import (  # noqa: E402
     evaluation_chain, followup_chain, generate_unique_questions, interviewer_reply, jd_analysis_chain, job_context_from, summary_chain,
 )
-from interview_app.licensing import DEFAULT_OPEN_MODEL, classify  # noqa: E402
 from interview_app.model_config import GenerationParams  # noqa: E402
-from interview_app.openrouter import get_api_key, get_capabilities  # noqa: E402
+from interview_app.openrouter import get_api_key, get_capabilities, get_model  # noqa: E402
 from interview_app.security_guard import GuardError, guard_untrusted_input  # noqa: E402
 from interview_app.vectorstore import QuestionMemory, Thresholds  # noqa: E402
 
@@ -73,9 +72,7 @@ def simulated_answer(spec: ModelSpec, question: str, quality: str) -> tuple[str,
 
 
 def header(title: str, model: str) -> list[str]:
-    licence = classify(model)
-    note = "" if licence.is_open_weight else "\n> **Stand-in model:** this run used a proprietary model because open-weight models were unavailable to the account. Re-run with an open-weight model.\n"
-    return [f"# {title}", "", f"Run {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} · model `{model}` · {licence.category} ({licence.licence})", note]
+    return [f"# {title}", "", f"Run {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} · model `{model}`", ""]
 
 
 def spec_for(model: str) -> ModelSpec:
@@ -210,8 +207,9 @@ def write(name: str, lines: list[str]) -> Path:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("demo", choices=["interview", "chains", "duplicates", "all"])
-    parser.add_argument("--model", default=DEFAULT_OPEN_MODEL)
+    parser.add_argument("--model", default=None, help="default: the configured OPENROUTER_MODEL")
     args = parser.parse_args()
+    args.model = args.model or get_model()
     if not get_api_key():
         print("OPENROUTER_API_KEY is not configured.")
         return 2

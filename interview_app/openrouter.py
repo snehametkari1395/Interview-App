@@ -33,7 +33,6 @@ from interview_app.model_config import (
     build_request_body,
     capabilities_from_catalog_entry,
 )
-from interview_app.licensing import DEFAULT_OPEN_MODEL
 from interview_app.pricing import CostBreakdown, actual_cost, extract_usage
 from interview_app.schemas import trim_to_schema, validate_against, wire_schema
 from interview_app.security_guard import GuardError, check_rate_limit, parse_json_object, redact_secrets
@@ -42,7 +41,7 @@ API_BASE = "https://openrouter.ai/api/v1"
 API_URL = f"{API_BASE}/chat/completions"
 MODELS_URL = f"{API_BASE}/models"
 KEY_URL = f"{API_BASE}/key"
-DEFAULT_MODEL = DEFAULT_OPEN_MODEL  # open weights (Apache-2.0); proprietary models remain selectable
+DEFAULT_MODEL = "openai/gpt-4o-mini"
 REQUEST_TIMEOUT_S = 90.0
 
 RETRYABLE_STATUS = frozenset({408, 429, 500, 502, 503, 504})

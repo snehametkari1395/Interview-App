@@ -57,7 +57,7 @@ This is why "decorators" and "generators" are not confused: the generators quest
 
 ## Live demonstration
 
-[demos/duplicate_detection.md](demos/duplicate_detection.md) (stand-in model, isolated in-memory collection):
+[demos/duplicate_detection.md](demos/duplicate_detection.md) (isolated in-memory collection; `openai/gpt-4o-mini` for generation):
 
 | Candidate question vs stored "What are Python decorators and how do they work?" | Similarity | Label |
 | --- | --- | --- |
@@ -66,7 +66,14 @@ This is why "decorators" and "generators" are not confused: the generators quest
 | What are Python generators and when would you use them? | 0.573 | similar |
 | Explain list comprehensions in Python. | 0.417 | new |
 
-Then chain B, asked for Python questions with the stored decorators question in its avoid list, produced a generators question (0.531, similar, accepted) and a caching question (0.392, new, accepted).
+Then chain B was asked for two Python questions with the stored decorators question in its avoid list:
+
+| Generated question | Similarity | Outcome |
+| --- | --- | --- |
+| Can you explain what a Python generator is and when you would use it? | n/a | rejected: labelled Easy in a Medium request |
+| Implement a caching mechanism… would you use a decorator for this? | 0.669 | rejected: duplicate of the decorators question |
+| Can you explain what a generator is in Python and when you might choose one over a list? | 0.461 | accepted, similar |
+| Describe a scenario where you would use context managers in Python. | 0.406 | accepted, new |
 
 ## Code
 

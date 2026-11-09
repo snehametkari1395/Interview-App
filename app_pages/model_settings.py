@@ -1,6 +1,5 @@
 import streamlit as st
 
-from interview_app.licensing import OSI_OPEN, classify
 from interview_app.model_config import PARAM_SPECS, GenerationParams, build_request_body
 from interview_app.openrouter import (
     active_model,
@@ -60,15 +59,7 @@ else:
 # Provider and model
 # ---------------------------------------------------------------------------
 current = active_model()
-open_only = st.toggle(
-    "Open-weight models only",
-    value=st.session_state.get("cfg_open_only", classify(current).is_open_weight),
-    key="cfg_open_only",
-    help="Show only models whose weights are publicly released (from the app's curated licence table). Unverified models are hidden.",
-)
 models = sorted(set(catalog) | {configured, current})
-if open_only:
-    models = [m for m in models if classify(m).is_open_weight] or [current]
 providers = sorted({model.split("/", 1)[0] for model in models if "/" in model}, key=lambda p: provider_label(p).lower())
 current_provider = current.split("/", 1)[0]
 
@@ -77,7 +68,7 @@ with left:
     with st.container(border=True):
         st.subheader("Model")
         _seed("cfg_provider", current_provider if current_provider in providers else providers[0])
-        if st.session_state.cfg_provider not in providers:  # the open-weight filter can remove the stored provider
+        if st.session_state.cfg_provider not in providers:  # e.g. after the catalog refreshes
             st.session_state.cfg_provider = current_provider if current_provider in providers else providers[0]
         provider = st.selectbox("Provider", providers, key="cfg_provider", format_func=provider_label)
         provider_models = [model for model in models if model.startswith(f"{provider}/")]
@@ -104,10 +95,6 @@ with right:
     with st.container(border=True):
         st.subheader(model_label(model))
         st.caption(f"`{model}`")
-        licence = classify(model)
-        st.badge(f"{licence.category} · {licence.licence}", color="green" if licence.category == OSI_OPEN else ("orange" if licence.is_open_weight else "gray"))
-        if licence.note:
-            st.caption(licence.note)
         if not caps.known:
             st.info("No capability metadata for this model. Only temperature and max tokens will be sent; costs cannot be calculated.", icon=":material/info:")
         else:

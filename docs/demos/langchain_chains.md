@@ -1,8 +1,6 @@
 # Demo: LangChain chains A-E
 
-Run 2026-11-09 08:43 UTC · model `openai/gpt-4o-mini` · Proprietary (Commercial API)
-
-> **Stand-in model:** this run used a proprietary model because open-weight models were unavailable to the account. Re-run with an open-weight model.
+Run 2026-11-09 09:09 UTC · model `openai/gpt-4o-mini`
 
 ## A · Job description analysis
 
@@ -12,7 +10,7 @@ Run 2026-11-09 08:43 UTC · model `openai/gpt-4o-mini` · Proprietary (Commercia
   "relevance_note": "",
   "role_title": "Backend Developer",
   "company": "Northwind Payments",
-  "role_summary": "Northwind Payments is looking for a Backend Developer to create services using Python and FastAPI for processing card transactions. The role involves designing REST APIs, data modeling in PostgreSQL, implementing caching with Redis, and writing automated tests.",
+  "role_summary": "Northwind Payments is looking for a Backend Developer to create Python services for processing card transactions. The role involves designing REST APIs, managing data with PostgreSQL, implementing caching solutions, and writing automated tests.",
   "required_skills": [
     {
       "name": "Python",
@@ -48,13 +46,13 @@ Run 2026-11-09 08:43 UTC · model `openai/gpt-4o-mini` · Proprietary (Commercia
   "technical_competencies": [
     "Backend development",
     "API design",
-    "Database modeling",
+    "Database management",
     "Caching strategies",
-    "Test automation"
+    "Automated testing"
   ],
   "behavioural_competencies": [
+    "Team collaboration",
     "Problem-solving",
-    "Collaboration",
     "Adaptability",
     "Communication"
   ],
@@ -63,41 +61,41 @@ Run 2026-11-09 08:43 UTC · model `openai/gpt-4o-mini` · Proprietary (Commercia
     "FastAPI framework",
     "REST API design principles",
     "PostgreSQL data modeling",
-    "Caching mechanisms",
-    "Automated testing strategies"
+    "Caching mechanisms with Redis",
+    "Automated testing practices"
   ],
   "likely_questions": [
-    "Can you explain how you would design a REST API?",
-    "What are the key features of FastAPI?",
-    "How do you handle database migrations in PostgreSQL?",
-    "Can you describe a caching strategy using Redis?",
-    "What approaches do you take for writing automated tests?"
+    "Can you explain how you would design a REST API for processing transactions?",
+    "What are the advantages of using FastAPI over other frameworks?",
+    "How do you handle data modeling in PostgreSQL?",
+    "What caching strategies have you implemented using Redis?",
+    "Can you describe your experience with writing automated tests?"
   ],
   "prep_plan": [
     {
-      "step": "Review Python fundamentals",
-      "focus": "Python programming",
-      "action": "Practice writing Python code and understand core concepts."
+      "step": "Review Python and FastAPI",
+      "focus": "Core programming skills",
+      "action": "Practice building basic FastAPI applications"
     },
     {
-      "step": "Learn FastAPI",
-      "focus": "Framework usage",
-      "action": "Build a small project using FastAPI to create REST APIs."
+      "step": "Study REST API design",
+      "focus": "API principles",
+      "action": "Read about idempotency and best practices in API design"
     },
     {
-      "step": "Study PostgreSQL",
-      "focus": "Database design",
-      "action": "Explore data modeling and querying in PostgreSQL."
+      "step": "Learn PostgreSQL",
+      "focus": "Database management",
+      "action": "Work on data modeling exercises"
     },
     {
-      "step": "Understand caching with Redis",
+      "step": "Explore Redis caching",
       "focus": "Caching strategies",
-      "action": "Implement caching in a sample application using Redis."
+      "action": "Implement caching in a sample project"
     },
     {
       "step": "Practice automated testing",
       "focus": "Testing skills",
-      "action": "Write tests for your projects using a testing framework."
+      "action": "Write tests for existing codebases"
     }
   ]
 }
@@ -108,44 +106,44 @@ Run 2026-11-09 08:43 UTC · model `openai/gpt-4o-mini` · Proprietary (Commercia
 ```json
 [
   {
-    "question": "How would you design a REST API endpoint for creating a new user in a FastAPI application? What considerations would you take into account regarding data validation and error handling?",
-    "topic": "REST API design principles",
+    "question": "How would you implement caching in a FastAPI application using Redis, and what factors would you consider when deciding what to cache?",
+    "topic": "Caching mechanisms with Redis",
     "category": "scenario",
     "difficulty": "Medium",
     "expected_answer_points": [
-      "Define endpoint structure (e.g., POST /users)",
-      "Explain data validation (e.g., using Pydantic models)",
-      "Discuss error handling strategies (e.g., HTTP status codes, exception handling)"
+      "Identify types of data suitable for caching",
+      "Explain how to set up Redis with FastAPI",
+      "Discuss cache expiration strategies"
     ],
     "follow_up_questions": [
-      "What if the user already exists? How would you handle that?",
-      "How would you ensure the security of this endpoint?",
-      "What testing strategies would you implement for this endpoint?"
+      "What would you do if the cache becomes stale?",
+      "How would you measure the effectiveness of your caching strategy?",
+      "Can you provide an example of a caching scenario you've encountered?"
     ],
-    "hint": "Outline the API structure, validation, and error handling.",
+    "hint": "Discuss the setup, data types, and expiration.",
     "novelty": "new",
     "nearest": "",
     "similarity": 0.0
   },
   {
-    "question": "In a scenario where you need to cache database query results in a FastAPI application using Redis, what factors would you consider for implementing an effective caching strategy?",
-    "topic": "Caching strategies",
+    "question": "In a REST API design, how would you handle versioning, and what are the trade-offs of the different approaches you might take?",
+    "topic": "REST API design principles",
     "category": "scenario",
     "difficulty": "Medium",
     "expected_answer_points": [
-      "Identify which data to cache (e.g., frequently accessed data)",
-      "Discuss cache expiration policies (e.g., TTL settings)",
-      "Explain how to handle cache invalidation when data changes"
+      "Explain different versioning strategies (e.g., URI versioning, header versioning)",
+      "Discuss the impact on client compatibility",
+      "Consider maintenance and documentation implications"
     ],
     "follow_up_questions": [
-      "How would you measure the effectiveness of your caching strategy?",
-      "What challenges might arise with cache consistency?",
-      "How would you decide between caching at the application level versus database level?"
+      "What if you need to deprecate an old version?",
+      "How would you communicate changes to your API consumers?",
+      "Can you give an example of a versioning strategy you've used?"
     ],
-    "hint": "Discuss data selection, expiration, and invalidation.",
+    "hint": "Outline strategies, impacts, and examples.",
     "novelty": "new",
-    "nearest": "How would you design a REST API endpoint for creating a new user in a FastAPI application? What considerations would you take into account regarding data validation and error handling?",
-    "similarity": 0.3111
+    "nearest": "How would you implement caching in a FastAPI application using Redis, and what factors would you consider when deciding what to cache?",
+    "similarity": 0.269
   }
 ]
 ```
@@ -157,39 +155,39 @@ Answer: I would add an index on the column we filter by and check the query plan
 ```json
 {
   "overall_score": 1,
-  "summary": "The candidate's answer does not address the question about designing a REST API endpoint for user creation and lacks relevant details.",
+  "summary": "The candidate's response does not address the question regarding caching in a FastAPI application using Redis.",
   "technical_accuracy": {
     "score": 1,
-    "comment": "The response is unrelated to the question, focusing on indexing and query plans instead of API design."
+    "comment": "The answer is unrelated to the question about caching and instead discusses indexing and query plans."
   },
   "communication_skills": {
     "score": 1,
-    "comment": "The answer is vague and does not communicate any relevant information regarding the API design."
+    "comment": "The response is unclear and does not communicate relevant information regarding the implementation of caching."
   },
   "problem_solving": {
     "score": 1,
-    "comment": "The response fails to demonstrate any problem-solving related to the design of a REST API."
+    "comment": "The candidate does not demonstrate problem-solving skills related to caching in FastAPI."
   },
   "strengths": [],
   "weaknesses": [
-    "Completely off-topic response",
-    "Lacks understanding of REST API design",
-    "No mention of data validation or error handling"
+    "Irrelevant response to the question",
+    "Lack of understanding of caching concepts",
+    "Failure to address FastAPI and Redis integration"
   ],
   "missing_concepts": [
-    "Define endpoint structure (e.g., POST /users)",
-    "Explain data validation (e.g., using Pydantic models)",
-    "Discuss error handling strategies (e.g., HTTP status codes, exception handling)"
+    "Identify types of data suitable for caching",
+    "Explain how to set up Redis with FastAPI",
+    "Discuss cache expiration strategies"
   ],
   "improvement_suggestions": [
-    "Focus on the specific requirements of the question",
-    "Include relevant concepts like endpoint structure and data validation",
-    "Discuss error handling in the context of REST APIs"
+    "Study caching strategies and their benefits",
+    "Learn how to integrate Redis with FastAPI",
+    "Understand cache expiration and invalidation techniques"
   ],
   "recommended_follow_up_questions": [
-    "Can you explain how you would implement data validation in FastAPI?",
-    "What HTTP status codes would you use for different error scenarios?",
-    "How would you structure the response for a successful user creation?"
+    "Can you explain how you would implement Redis in a FastAPI application?",
+    "What types of data do you think are most beneficial to cache?",
+    "How would you handle cache expiration and invalidation?"
   ]
 }
 ```
@@ -199,17 +197,17 @@ Answer: I would add an index on the column we filter by and check the query plan
 ```json
 {
   "decision": "new_topic",
-  "rationale": "The candidate's response was completely off-topic and did not address the question, indicating a need to explore a different area of their expertise.",
-  "next_question": "Can you explain how you would implement authentication and authorization in a backend application? What methods would you consider, and why?",
-  "topic": "Authentication and Authorization",
+  "rationale": "The candidate's response was completely off-track, indicating a need to explore a new topic to assess their knowledge effectively.",
+  "next_question": "Can you explain the differences between SQL and NoSQL databases, and provide scenarios where one might be preferred over the other?",
+  "topic": "Database types",
   "category": "technical",
   "expected_answer_points": [
-    "Discuss token-based authentication",
-    "Mention OAuth or JWT",
-    "Explain role-based access control",
-    "Consider security implications",
-    "Provide an example of implementation",
-    "Address session management"
+    "Define SQL and NoSQL",
+    "Discuss use cases for SQL",
+    "Discuss use cases for NoSQL",
+    "Mention performance considerations",
+    "Explain data structure differences",
+    "Provide examples of each type"
   ]
 }
 ```
@@ -219,40 +217,45 @@ Answer: I would add an index on the column we filter by and check the query plan
 ```json
 {
   "overall_score": 1,
-  "overall_evaluation": "The candidate demonstrated a lack of understanding of REST API design principles, providing a completely off-topic response that did not address the question. There was no mention of critical aspects such as data validation or error handling, which are essential for creating a robust API. Overall, the performance indicates that the candidate is not yet ready for the role of a Backend Developer.",
+  "overall_evaluation": "The candidate struggled significantly with the caching question, providing an irrelevant response that did not demonstrate an understanding of the core concepts of caching, particularly in the context of FastAPI and Redis. There was a clear lack of technical accuracy and problem-solving skills, which are critical for a backend developer role. Overall, the candidate is not ready for the position at this time.",
   "readiness": "not yet ready",
   "competency_scores": [
     {
       "competency": "Technical Accuracy",
       "score": 1,
-      "comment": "The response showed a fundamental misunderstanding of REST API design."
+      "comment": "The candidate did not provide a relevant or accurate response."
     },
     {
       "competency": "Problem Solving",
       "score": 1,
-      "comment": "The candidate failed to address the problem presented in the question."
+      "comment": "The response did not demonstrate effective problem-solving skills."
+    },
+    {
+      "competency": "Communication Skills",
+      "score": 1,
+      "comment": "The candidate's communication did not address the question appropriately."
     }
   ],
   "strengths": [],
   "knowledge_gaps": [
-    "Define endpoint structure (e.g., POST /users)",
-    "Explain data validation (e.g., using Pydantic models)",
-    "Discuss error handling strategies (e.g., HTTP status codes, exception handling)"
+    "Identify types of data suitable for caching",
+    "Explain how to set up Redis with FastAPI",
+    "Discuss cache expiration strategies"
   ],
   "learning_plan": [
     {
-      "focus": "REST API design principles",
-      "action": "Study RESTful API design and best practices, focusing on endpoint structures and HTTP methods.",
+      "focus": "Caching mechanisms",
+      "action": "Study different caching strategies and their use cases, particularly in web applications.",
       "timeframe": "2 weeks"
     },
     {
-      "focus": "Data validation in FastAPI",
-      "action": "Implement a simple FastAPI application using Pydantic for data validation.",
-      "timeframe": "1 week"
+      "focus": "Redis integration with FastAPI",
+      "action": "Complete a tutorial on setting up Redis with FastAPI and implement a sample project.",
+      "timeframe": "3 weeks"
     },
     {
-      "focus": "Error handling in APIs",
-      "action": "Learn about error handling strategies in FastAPI, including HTTP status codes and exception handling.",
+      "focus": "Cache expiration strategies",
+      "action": "Research and summarize various cache expiration strategies and their implications.",
       "timeframe": "1 week"
     }
   ]
@@ -263,10 +266,10 @@ Answer: I would add an index on the column we filter by and check the query plan
 
 | Chain | Output mode | In | Out | Cost | Latency |
 | --- | --- | --- | --- | --- | --- |
-| A · Job description analysis | json_schema | 844 | 657 | 0.0005208 | 6.75 |
-| B · Question generation (v2-improved) | json_schema | 1210 | 299 | 0.0002841 | 4.39 |
-| C · Answer evaluation | json_schema | 1096 | 275 | 0.0003294 | 3.63 |
-| D · Follow-up | json_schema | 1132 | 109 | 0.0002352 | 4.88 |
-| E · Interview summary | json_schema | 1053 | 293 | 0.00033375 | 4.99 |
+| A · Job description analysis | json_schema | 844 | 654 | 0.000519 | 8.14 |
+| B · Question generation | json_schema | 1213 | 264 | 0.00034035 | 4.93 |
+| C · Answer evaluation | json_schema | 1071 | 245 | 0.00030765 | 6.19 |
+| D · Follow-up | json_schema | 1125 | 108 | 0.00023355 | 2.18 |
+| E · Interview summary | json_schema | 1030 | 288 | 0.0003273 | 5.29 |
 
-Total $0.00170
+Total $0.00173

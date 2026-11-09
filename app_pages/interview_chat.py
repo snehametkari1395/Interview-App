@@ -10,7 +10,6 @@ from interview_app.catalog import DOMAINS, PrepProfile
 from interview_app.chains.interview_graph import Dependencies, build_interview_graph, initial_state, run_config
 from interview_app.chains.llm import spec_from_session
 from interview_app.chains.workflows import interviewer_reply, job_context_from
-from interview_app.licensing import classify
 from interview_app.openrouter import active_model, describe_error, get_api_key, reserve_calls
 from interview_app.pricing import format_usd
 from interview_app.security_guard import FLAG_DESCRIPTIONS, GuardError, guard_untrusted_input
@@ -118,11 +117,7 @@ def dependencies() -> Dependencies:
 # ---------------------------------------------------------------------------
 st.badge("AI INTERVIEWER", icon=":material/forum:", color="violet")
 st.title("Interview chat", icon=":material/forum:")
-model = active_model()
-licence = classify(model)
-st.caption(f"Model `{model}` · {licence.category} ({licence.licence}). Each turn: evaluate (chain C), adapt difficulty, follow up (chain D), streamed feedback.")
-if not licence.is_open_weight:
-    st.info("The advanced features default to an open-weight model. You are using a proprietary model; choose an open-weight one in Model settings if your account allows it.", icon=":material/info:")
+st.caption(f"Model `{active_model()}`. Each turn: evaluate (chain C), adapt difficulty, follow up (chain D), streamed feedback.")
 
 threads = st.session_state.chat_threads
 toolbar = st.container(horizontal=True, vertical_alignment="bottom")
