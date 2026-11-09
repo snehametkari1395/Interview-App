@@ -8,6 +8,7 @@ from interview_app.security_guard import (
     GuardError,
     assess_input,
     clean_model_text,
+    get_semantic_detector,
     sanitize_text,
 )
 from interview_app.security_lab import SAMPLE_CASES, is_detected, llm_screen
@@ -31,6 +32,8 @@ with st.expander("How the app defends itself", icon=":material/layers:", expande
    chat-token neutralisation, length limits, and pattern checks for instruction overrides, prompt extraction, role hijacking,
    score manipulation, fake role headers, and encoded payloads. Score-manipulation attempts are blocked; other flags are passed
    to the model as metadata so quoted attacks in legitimate answers still work.
+   **Semantic layer:** each sentence is embedded with `qwen/qwen3-embedding-8b` and compared with known attack phrasings, so
+   reworded attacks without trigger words are flagged too (calibrated threshold, fails open if the embedding call fails).
 2. **Prompt structure.** Trusted settings live in the system prompt; untrusted text travels only as JSON data, with explicit
    rules never to follow it. Every system prompt carries a canary token, and any response that echoes it is discarded.
 3. **Output validation.** Responses must be a JSON object; every field is type-checked, clamped, and length-capped. Markdown
@@ -58,6 +61,18 @@ with custom:
         )
         for flag in assessment.flags:
             st.markdown(f"- {FLAG_DESCRIPTIONS.get(flag, flag)}")
+        detector = get_semantic_detector()
+        if detector is not None and not assessment.blocked:
+            semantic = detector(sanitize_text(text))
+            if semantic is None:
+                st.caption("Semantic layer: not available right now (the embedding call failed), so only the rules applied.")
+            else:
+                (st.warning if semantic.flagged else st.success)(
+                    f"Semantic layer: **{'flagged' if semantic.flagged else 'not flagged'}** · similarity {semantic.similarity:.2f} "
+                    f"to a known {semantic.category.replace('_', ' ')} attack (threshold {detector.threshold:.2f})",
+                    icon=":material/hub:",
+                )
+                st.caption(f"Closest sentence: \"{semantic.sentence[:160]}\" · closest known attack: \"{semantic.exemplar}\"")
         if sanitize_text(text) != text.strip():
             with st.expander("Sanitised text sent to the model"):
                 st.code(sanitize_text(text), language=None, wrap_lines=True)
@@ -138,7 +153,8 @@ with benchmark:
     with st.container(border=True):
         st.markdown("**What to look for**")
         st.markdown(
-            "- **Paraphrased attack** has no trigger phrase, so rules miss it. This is where an LLM screen tends to add value.\n"
+            "- **Paraphrased attack** has no trigger phrase, so the pattern rules miss it. In the app the semantic layer flags it "
+            "(try it under *Check your own text*), and an LLM screen can add a further opinion.\n"
             "- **Classifier evasion** speaks directly to the security reviewer. It tests whether the LLM screen can itself be talked down.\n"
             "- **Answer that discusses injection** is benign. Rules flag it but do not block it; a good screen should rate it low.\n"
             "- **Data exfiltration** is not an input pattern at all. It is stopped at the output layer, where Markdown images are removed.\n"

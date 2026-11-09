@@ -5,6 +5,7 @@ import hmac
 import streamlit as st
 
 from interview_app.navigation import available_pages
+from interview_app.semantic_guard import install_default_detector
 
 st.set_page_config(page_title="Interview App", page_icon="assets/icon.svg", layout="wide")
 st.logo("assets/logo.svg", icon_image="assets/icon.svg", size="large")
@@ -30,6 +31,9 @@ if required and not st.session_state.get("access_granted"):
                 st.rerun()
             st.error("That code is not correct.")
     st.stop()
+
+# Semantic prompt-injection layer: flags reworded attacks that pattern rules miss (needs the API key).
+install_default_detector()
 
 sections: dict[str, list] = {}
 for index, (path, title, icon, section) in enumerate(available_pages()):

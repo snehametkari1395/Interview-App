@@ -159,6 +159,8 @@ def evaluate(state: InterviewState, runtime: Runtime[Dependencies]) -> dict:
     }
     if state.get("job_context"):
         payload["job_context"] = state["job_context"]
+    if state.get("pending_flags"):  # guard flags from the page, including the semantic layer
+        payload["input_flags"] = list(state["pending_flags"])
     output = evaluation_chain(deps.spec, profile).invoke(payload)
     return {"last_evaluation": output.data, "usage": _record(state, output)}
 

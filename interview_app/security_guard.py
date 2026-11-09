@@ -109,7 +109,23 @@ FLAG_DESCRIPTIONS = {
     "encoded_payload": "Contains a long encoded blob that could hide instructions",
     "hidden_characters": "Contained invisible or direction-changing characters (removed)",
     "template_tokens": "Contained chat-template control tokens (neutralised)",
+    "semantic_injection": "Is close in meaning to a known prompt-injection attack, even without trigger words",
 }
+
+# Optional semantic layer (``semantic_guard``), registered by the app when an API key is configured.
+# Kept as a pluggable callable so this module stays free of network calls and offline tests stay offline.
+_semantic_detector = None
+
+
+def set_semantic_detector(detector) -> None:
+    """Register a callable ``text -> result | None`` whose result has ``.flagged`` (or None to disable)."""
+    global _semantic_detector
+    _semantic_detector = detector
+
+
+def get_semantic_detector():
+    """The registered semantic detector, or None when the layer is off."""
+    return _semantic_detector
 
 
 @dataclass(frozen=True)
@@ -159,11 +175,22 @@ def assess_input(raw_text: str) -> InputAssessment:
 
 
 def guard_untrusted_input(value: str, field_name: str, max_chars: int) -> tuple[str, InputAssessment]:
-    """Validate, sanitise, and assess one piece of user text. Raises GuardError when blocked."""
+    """Validate, sanitise, and assess one piece of user text. Raises GuardError when blocked.
+
+    After the deterministic checks pass, the semantic layer (if registered) adds the
+    ``semantic_injection`` flag for reworded attacks. Like most flags it warns and is passed to the
+    model as metadata; it never blocks, and a failed embedding call simply skips it.
+    """
     assessment = assess_input(value or "")
     clean = validate_text(value, field_name, max_chars)
     if assessment.blocked:
         raise GuardError(assessment.message)
+    detector = _semantic_detector
+    if detector is not None:
+        result = detector(clean)
+        if result is not None and result.flagged:
+            assessment = InputAssessment(risk="medium" if assessment.risk == "low" else assessment.risk,
+                                         flags=(*assessment.flags, "semantic_injection"), blocked=False)
     return clean, assessment
 
 

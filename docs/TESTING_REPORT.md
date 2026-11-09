@@ -6,8 +6,8 @@ Date: 2026-11-09 · Model `openai/gpt-6-luna` (reasoning effort low) · Embeddin
 
 | Area | Result |
 | --- | --- |
-| Automated tests (offline, no network) | **98 / 98 pass** |
-| Security suite | **50 / 51 pass** (the one failure is a documented gap in the deterministic layer, SEC-A08, which the prompt layer covers) |
+| Automated tests (offline, no network) | **115 / 115 pass** |
+| Security suite | **52 / 52 pass** ([Excel sheet](SECURITY_TEST_RESULTS.xlsx)). SEC-A08, a reworded attack with no trigger words, was a documented gap in the pattern rules; it is now caught by the semantic injection detector ([DEFENSIVE_PROMPT.md](DEFENSIVE_PROMPT.md#reworded-attacks-the-semantic-injection-detector)), and SEC-A17 checks that genuine answers are not flagged |
 | Five prompt techniques compared live | Done: few-shot selected ([PROMPT_TECHNIQUES.md](PROMPT_TECHNIQUES.md)) |
 | Defensive prompt live (off-topic, override, false-positive check) | Pass ([DEFENSIVE_PROMPT.md](DEFENSIVE_PROMPT.md)) |
 | Live LangChain chains A–E | Pass |

@@ -84,7 +84,8 @@ def usage_from_message(message: AIMessage) -> dict:
 def guard_payload(payload: dict, guard_fields: dict[str, int]) -> tuple[dict, tuple[str, ...]]:
     """Validate untrusted fields; returns the cleaned payload and any injection flags."""
     clean = dict(payload)
-    flags: list[str] = []
+    # Flags the page already attached (e.g. from the semantic layer) are kept and merged.
+    flags: list[str] = [flag for flag in clean.pop("input_flags", None) or [] if isinstance(flag, str)]
     for name, limit in guard_fields.items():
         value = clean.get(name)
         if value in (None, ""):

@@ -22,7 +22,7 @@ A Streamlit app for AI interview preparation: a conversational AI interviewer, d
 | Structured JSON output formats (Q&A set, evaluation) validated against JSON Schemas | Structured output page · `interview_app/schemas.py` |
 | Prompt cost calculator (estimated and actual cost from live OpenRouter pricing) | Structured output page, sidebar, Model settings · `interview_app/pricing.py` |
 | Improvement from the OpenRouter docs: retries with backoff, `require_parameters` routing, fallback model | `interview_app/openrouter.py`, `interview_app/chains/llm.py` |
-| Security testing and jailbreak experiments (51 tests) | Security lab page · Excel sheet [docs/SECURITY_TEST_RESULTS.xlsx](docs/SECURITY_TEST_RESULTS.xlsx) · [docs/SECURITY_TEST_REPORT.md](docs/SECURITY_TEST_REPORT.md) |
+| Security testing and jailbreak experiments (52 tests, all pass), plus a semantic detector for reworded attacks | Security lab page · Excel sheet [docs/SECURITY_TEST_RESULTS.xlsx](docs/SECURITY_TEST_RESULTS.xlsx) · [docs/SECURITY_TEST_REPORT.md](docs/SECURITY_TEST_REPORT.md) |
 
 **Hard tasks** (all implemented and verified live)
 
@@ -102,6 +102,7 @@ uv run python scripts/compare_prompts.py               # compare the 5 prompt te
 uv run python scripts/run_demos.py all                 # live demos -> docs/demos/
 uv run python scripts/run_security_tests.py --live     # security suite -> docs/SECURITY_TEST_REPORT.md
 uv run python scripts/calibrate_similarity.py          # embedding similarity on labelled pairs
+uv run python scripts/calibrate_attack_detector.py     # threshold for the semantic injection detector
 uv run --with openpyxl python scripts/export_security_xlsx.py   # security results -> docs/SECURITY_TEST_RESULTS.xlsx
 ```
 
@@ -115,8 +116,8 @@ uv run --with openpyxl python scripts/export_security_xlsx.py   # security resul
 | [docs/LANGCHAIN.md](docs/LANGCHAIN.md) | Packages, chains A–E, structured output, fallbacks, interview graph |
 | [docs/VECTOR_DB.md](docs/VECTOR_DB.md) | ChromaDB design, stored metadata, threshold calibration, duplicate vs similar vs new |
 | [docs/TESTING_REPORT.md](docs/TESTING_REPORT.md) | Test results, live verification, defects found and fixed |
-| [docs/SECURITY_TEST_REPORT.md](docs/SECURITY_TEST_REPORT.md) | 51 security tests with expected and actual behaviour |
-| [docs/SECURITY_TEST_RESULTS.xlsx](docs/SECURITY_TEST_RESULTS.xlsx) | The same 51 jailbreak and security tests as an Excel sheet, with a summary by category |
+| [docs/SECURITY_TEST_REPORT.md](docs/SECURITY_TEST_REPORT.md) | 52 security tests with expected and actual behaviour |
+| [docs/SECURITY_TEST_RESULTS.xlsx](docs/SECURITY_TEST_RESULTS.xlsx) | The same 52 jailbreak and security tests as an Excel sheet, with a summary by category |
 
 ## Code layout
 
@@ -130,11 +131,11 @@ interview_app/
   chain_schemas.py, schemas.py         JSON Schemas, validation, trimming
   vectorstore.py, services.py          ChromaDB question memory (qwen3 embeddings via OpenRouter)
   model_config.py, openrouter.py, pricing.py   parameters, approved models, client, cost
-  security_guard.py, file_ingest.py, security_suite.py   security
+  security_guard.py, semantic_guard.py, file_ingest.py, security_suite.py   security (rules + embedding-based injection detector)
 scripts/                     prompt comparison, demos, security tests, calibration
-tests/                       103 offline tests (fake models and embeddings)
+tests/                       115 offline tests (fake models and embeddings)
 ```
 
 ## Security model
 
-Deterministic checks enforce; LLM checks only advise. Input is sanitised and pattern-checked at the UI and again inside every chain, then the defensive triage prompt declines off-topic requests and override attempts before anything is scored. Prompts keep trusted settings and untrusted data separate and carry a canary token. Output is schema-validated and sanitised, including incrementally during streaming. The API key stays server-side, and only generated question text and its metadata are stored. These are application-level boundaries, not a guarantee against every prompt-injection risk.
+Deterministic checks enforce; LLM checks only advise. Input is sanitised and pattern-checked at the UI and again inside every chain; a semantic detector (qwen3 embeddings compared with known attack phrasings) flags reworded attacks that have no trigger words; then the defensive triage prompt declines off-topic requests and override attempts before anything is scored. Prompts keep trusted settings and untrusted data separate and carry a canary token. Output is schema-validated and sanitised, including incrementally during streaming. The API key stays server-side, and only generated question text and its metadata are stored. These are application-level boundaries, not a guarantee against every prompt-injection risk.
