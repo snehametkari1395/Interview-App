@@ -237,10 +237,10 @@ with board_column, st.container(border=True):
     metrics = st.columns(2)
     metrics[0].metric("Answered", f"{len(turns)} / {state.get('max_questions', 0)}")
     metrics[1].metric("Average", f"{sum(t['overall_score'] for t in turns) / len(turns):.1f} / 5" if turns else "—")
-    metrics = st.columns(2)
-    metrics[0].metric("Difficulty", state.get("difficulty", "—"))
+    # Words like "Medium" and costs like "$0.000257" are too wide for a half-width metric, so show them compactly.
     cost = sum(item.get("cost_usd") or 0 for item in state.get("usage", [])) + thread.get("extra_cost", 0.0)
-    metrics[1].metric("Cost", format_usd(cost))
+    st.markdown(f":material/signal_cellular_alt: Difficulty **{state.get('difficulty', '—')}**  \n"
+                f":material/payments: Cost **{format_usd(cost)}**")
     if turns:
         st.dataframe(
             [{"#": i, "Topic": t["topic"], "Level": t["difficulty"], "Score": t["overall_score"], "Tech": t["technical_accuracy"],
