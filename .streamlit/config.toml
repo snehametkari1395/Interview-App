@@ -25,3 +25,4 @@ borderColor = "#E3E8DB"
 
 [client]
 showSidebarNavigation = true
+toolbarMode = "minimal"
