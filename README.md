@@ -99,6 +99,7 @@ Notes: the question memory (`data/chroma/`) is stored on the app's temporary dis
 
 ```powershell
 uv run python scripts/compare_prompts.py               # compare the 5 prompt techniques -> docs/PROMPT_TECHNIQUES.md
+uv run python scripts/compare_settings.py              # compare reasoning effort and max tokens -> docs/MODEL_SETTINGS.md
 uv run python scripts/run_demos.py all                 # live demos -> docs/demos/
 uv run python scripts/run_security_tests.py --live     # security suite -> docs/SECURITY_TEST_REPORT.md
 uv run python scripts/calibrate_similarity.py          # embedding similarity on labelled pairs
@@ -111,6 +112,7 @@ uv run --with openpyxl python scripts/export_security_xlsx.py   # security resul
 | Document | Contents |
 | --- | --- |
 | [docs/PROMPT_TECHNIQUES.md](docs/PROMPT_TECHNIQUES.md) | The five system prompts, comparison method, results, and the chosen technique |
+| [docs/MODEL_SETTINGS.md](docs/MODEL_SETTINGS.md) | Reasoning effort and max tokens compared on one task, with the chosen defaults |
 | [docs/DEFENSIVE_PROMPT.md](docs/DEFENSIVE_PROMPT.md) | The defensive prompt, protection layers, live results, and the review demo script |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Component, chain, and LangGraph diagrams; context flow; security boundaries |
 | [docs/LANGCHAIN.md](docs/LANGCHAIN.md) | Packages, chains A–E, structured output, fallbacks, interview graph |
