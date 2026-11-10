@@ -14,6 +14,7 @@ from interview_app.security_guard import (
 from interview_app.security_lab import SAMPLE_CASES, is_detected, llm_screen
 from interview_app.security_suite import DETERMINISTIC_TESTS, LIVE_TESTS, LiveContext, report_json, report_markdown, run_suite
 from interview_app.ui import render_sidebar, require_api_key
+from interview_app.theme import hero, panel
 
 MAX_CUSTOM_CHARS = 4000
 
@@ -21,9 +22,10 @@ st.set_page_config(page_title="Security lab | Interview App", page_icon=":materi
 
 render_sidebar()
 
-st.badge("SECURITY LAB", icon=":material/shield:", color="red")
-st.title("Security lab", icon=":material/shield:")
-st.caption("See how the app's deterministic guard handles risky input, and investigate whether an LLM screen catches what rules miss.")
+with hero("security_lab"):
+    st.badge("SECURITY LAB", icon=":material/shield:", color="green")
+    st.title("Security lab", icon=":material/shield:")
+    st.caption("See how the app's deterministic guard handles risky input, and investigate whether an LLM screen catches what rules miss.")
 
 with st.expander("How the app defends itself", icon=":material/layers:", expanded=False):
     st.markdown(
@@ -150,7 +152,7 @@ with benchmark:
         metric_row[2].metric("LLM detection", "—")
         metric_row[3].metric("LLM false positives", "—")
 
-    with st.container(border=True):
+    with panel(border=True):
         st.markdown("**What to look for**")
         st.markdown(
             "- **Paraphrased attack** has no trigger phrase, so the pattern rules miss it. In the app the semantic layer flags it "

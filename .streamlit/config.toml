@@ -1,13 +1,28 @@
-# Interview App theme: deep green brand on a soft off-white surface, white sidebar.
+# Interview App theme: deep green brand with a lime accent, white cards on a soft surface,
+# white sidebar, plus accent colours (one per page). Banners and cards: interview_app/theme.py.
 [theme]
 base = "light"
 primaryColor = "#1F5130"
-backgroundColor = "#F7F8F3"
-secondaryBackgroundColor = "#EDF1E6"
+backgroundColor = "#F4F6EF"
+secondaryBackgroundColor = "#F3F6EE"
 textColor = "#17251B"
 linkColor = "#1F5130"
-greenColor = "#2F6B3A"
 borderColor = "#DCE3D3"
+# Accent palette: used by badges, coloured text (:blue[...]) and alerts.
+greenColor = "#2F6B3A"
+# Green badges become lime pills with dark green text, as in the reference design.
+greenBackgroundColor = "#E4F5B8"
+greenTextColor = "#1F5130"
+blueColor = "#1D6FB8"
+orangeColor = "#C2621A"
+violetColor = "#7048C9"
+redColor = "#C93A3A"
+yellowColor = "#B88A00"
+# Tables: deep green header with white text.
+dataframeHeaderBackgroundColor = "#1F5130"
+dataframeHeaderTextColor = "#FFFFFF"
+dataframeBorderColor = "#DCE3D3"
+chartCategoricalColors = ["#1F5130", "#1D6FB8", "#C2621A", "#7048C9", "#C93A3A", "#B88A00", "#5B6B5F"]
 font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 headingFont = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 codeFont = "monospace"
@@ -16,10 +31,12 @@ buttonRadius = "0.6rem"
 metricValueFontWeight = 700
 showWidgetBorder = true
 showSidebarBorder = true
+# Less empty space above the first element on each page.
+paddingTop = "1.5rem"
 
 [theme.sidebar]
 backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#EEF3E6"
+secondaryBackgroundColor = "#F2F5EC"
 textColor = "#17251B"
 borderColor = "#E3E8DB"
 

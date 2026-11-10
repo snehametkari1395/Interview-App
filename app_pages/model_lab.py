@@ -16,6 +16,7 @@ from interview_app.openrouter import ALLOWED_MODELS, active_model, describe_erro
 from interview_app.question_bank import get_questions
 from interview_app.security_guard import GuardError, guard_untrusted_input
 from interview_app.ui import MAX_TOKEN_OPTIONS, profile_inputs, render_sidebar, require_api_key, show_error
+from interview_app.theme import hero, panel
 
 MAX_QUESTION_CHARS = 600
 MAX_ANSWER_CHARS = 4000
@@ -27,9 +28,10 @@ st.set_page_config(page_title="Model lab | Interview App", page_icon=":material/
 
 render_sidebar()
 
-st.badge("MODEL LAB", icon=":material/tune:", color="green")
-st.title("Compare parameter settings", icon=":material/tune:")
-st.caption("Run the same interview task under different settings, then compare quality, relevance, creativity, accuracy, length, and consistency.")
+with hero("model_lab"):
+    st.badge("MODEL LAB", icon=":material/tune:", color="green")
+    st.title("Compare parameter settings", icon=":material/tune:")
+    st.caption("Run the same interview task under different settings, then compare quality, relevance, creativity, accuracy, length, and consistency.")
 
 with st.expander("How each parameter affects the output", icon=":material/school:"):
     for name, text in PARAMETER_GUIDE.items():
@@ -48,7 +50,7 @@ model_options = sorted(dict.fromkeys([*ALLOWED_MODELS, configured_model]))
 
 setup, configs_column = st.columns([1, 1.6], gap="large")
 with setup:
-    with st.container(border=True):
+    with panel(border=True):
         st.markdown("**Task**")
         task = st.segmented_control("What should the model do?", TASKS, default=TASKS[0], required=True, help="Model answer: write an ideal answer. Answer review: score and critique a candidate answer.")
         profile = profile_inputs("lab", show_persona=task == "Answer review")
@@ -63,7 +65,7 @@ with setup:
             answer = st.text_area("Candidate answer to review", max_chars=MAX_ANSWER_CHARS, height=160, placeholder="Paste or write an answer to evaluate...")
 
 with configs_column:
-    with st.container(border=True):
+    with panel(border=True):
         top = st.container(horizontal=True, vertical_alignment="bottom")
         config_count = top.segmented_control("Configurations", [2, 3], default=2, required=True)
         runs = top.segmented_control("Runs per configuration", list(range(1, MAX_RUNS + 1)), default=2, required=True, help="Two or more runs are needed to measure consistency.")
@@ -73,7 +75,7 @@ with configs_column:
         columns = st.columns(config_count)
         for position, column in enumerate(columns):
             label = CONFIG_LABELS[position]
-            with column.container(border=True):
+            with column, panel(border=True):
                 st.markdown(f"**Config {label}**")
                 model = st.selectbox("Model", model_options, index=model_options.index(configured_model), key=f"lab_model_{label}")
                 caps = get_capabilities(model)
@@ -194,7 +196,7 @@ if result:
             best = max(judged, key=lambda row: (row["Quality"], row["Accuracy"] or 0))
             observations.append(f"The judge rated {best['Config']} highest for quality ({best['Quality']:.1f}/5).")
     if observations:
-        with st.container(border=True):
+        with panel(border=True):
             st.markdown("**Observations**")
             for line in observations:
                 st.markdown(f"- {line}")
@@ -210,7 +212,7 @@ if result:
             st.markdown(f"**{config.label}**")
             st.caption(f"{config.model} · {config.params.label()}")
             for outcome in [o for o in result["outcomes"] if o.label == config.label]:
-                with st.container(border=True):
+                with panel(border=True):
                     meta = f"Run {outcome.run}"
                     if outcome.ok:
                         meta += f" · {outcome.latency_s:.1f}s"

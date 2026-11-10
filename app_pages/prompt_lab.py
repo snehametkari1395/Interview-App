@@ -5,16 +5,18 @@ from interview_app.openrouter import get_api_key, reserve_calls
 from interview_app.prompt_techniques import PRODUCTION_TECHNIQUE, TECHNIQUE_BY_KEY, TECHNIQUES, TEST_CASES, load_results, rank, run_comparison, save_results, summarize
 from interview_app.security_guard import GuardError
 from interview_app.ui import render_sidebar, require_api_key, show_error
+from interview_app.theme import hero, panel
 
 render_sidebar()
 
-st.badge("PROMPT ENGINEERING", icon=":material/science:", color="green")
-st.title("Prompt lab", icon=":material/science:")
-st.caption("Five system prompts that use different techniques for the same task, evaluating an interview answer, compared on human-labelled answers.")
+with hero("prompt_lab"):
+    st.badge("PROMPT ENGINEERING", icon=":material/science:", color="green")
+    st.title("Prompt lab", icon=":material/science:")
+    st.caption("Five system prompts that use different techniques for the same task, evaluating an interview answer, compared on human-labelled answers.")
 
 columns = st.columns(len(TECHNIQUES))
 for column, technique in zip(columns, TECHNIQUES):
-    with column.container(border=True, height="stretch"):
+    with column, panel(border=True, height="stretch"):
         st.markdown(f"**{technique.name}**")
         st.caption(technique.description)
         if technique.key == PRODUCTION_TECHNIQUE:

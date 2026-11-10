@@ -16,6 +16,7 @@ from interview_app.pricing import format_usd
 from interview_app.security_guard import FLAG_DESCRIPTIONS, GuardError, assess_input, guard_untrusted_input, sanitize_text
 from interview_app.services import current_thresholds, get_question_memory, record_chain_usage
 from interview_app.ui import profile_inputs, remember_profile, render_sidebar, require_api_key, show_error
+from interview_app.theme import hero, panel
 
 MAX_ANSWER_CHARS = 6000
 MAX_HINT_CHARS = 200
@@ -142,9 +143,10 @@ def dependencies() -> Dependencies:
 # ---------------------------------------------------------------------------
 # Header and interview list
 # ---------------------------------------------------------------------------
-st.badge("AI INTERVIEWER", icon=":material/forum:", color="green")
-st.title("Interview chat", icon=":material/forum:")
-st.caption("A live mock interview: answer each question in your own words and get instant feedback.")
+with hero("interview_chat"):
+    st.badge("AI INTERVIEWER", icon=":material/forum:", color="green")
+    st.title("Interview chat", icon=":material/forum:")
+    st.caption("A live mock interview: answer each question in your own words and get instant feedback.")
 
 threads = st.session_state.chat_threads
 toolbar = st.container(horizontal=True, vertical_alignment="bottom")
@@ -178,7 +180,7 @@ if active_thread():
 thread = active_thread()
 if thread is None:
     left, right = st.columns([1.3, 1], gap="large")
-    with left, st.container(border=True):
+    with left, panel(border=True):
         st.subheader("Set up your mock interview")
         profile = profile_inputs("chat", show_depth=False)
         focus = st.segmented_control("Interview type", DOMAINS[profile.domain].focuses, default="Balanced", required=True, key=f"chat_focus_{profile.domain}")
@@ -194,7 +196,7 @@ if thread is None:
                 use_jd = st.checkbox(f"Ground questions in my job description ({analysis.get('role_title') or 'analysed role'})", value=True)
         profile = replace(profile, depth=depth)
         start = st.button("Start mock interview", type="primary", width="stretch", icon=":material/arrow_forward:", disabled=not get_api_key())
-    with right, st.container(border=True):
+    with right, panel(border=True):
         st.subheader("How it works")
         st.markdown(
             ":material/looks_one: The interviewer asks a question.\n\n"
@@ -231,7 +233,7 @@ if thread is None:
 state = thread_state(thread["id"])
 chat_column, board_column = st.columns([2.2, 1], gap="large")
 
-with board_column, st.container(border=True):
+with board_column, panel(border=True):
     turns = state.get("turns", [])
     st.markdown("**Scoreboard**")
     metrics = st.columns(2)
@@ -281,7 +283,7 @@ with chat_column:
 
     summary = state.get("summary")
     if state.get("status") == "finished" and summary:
-        with st.container(border=True):
+        with panel(border=True):
             st.subheader("Interview summary")
             row = st.columns(3)
             row[0].metric("Overall", f"{summary['overall_score']} / 5")

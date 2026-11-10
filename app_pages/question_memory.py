@@ -8,24 +8,26 @@ from interview_app.security_guard import GuardError, guard_untrusted_input
 from interview_app.services import current_thresholds, get_question_memory, record_chain_usage
 from interview_app.ui import profile_inputs, render_sidebar, require_api_key, show_error
 from interview_app.vectorstore import DEFAULT_DUPLICATE_THRESHOLD, DEFAULT_SIMILAR_THRESHOLD, EMBEDDING_MODEL, Thresholds
+from interview_app.theme import hero, panel
 
 LABEL_COLORS = {"duplicate": "red", "similar": "orange", "new": "green"}
 
 render_sidebar()
 
-st.badge("VECTOR DATABASE", icon=":material/database:", color="green")
-st.title("Question memory", icon=":material/database:")
-st.caption(
-    f"Generated questions are embedded with `{EMBEDDING_MODEL}` via OpenRouter and stored in ChromaDB, "
-    "so new questions can be checked for semantic repeats. Only question text is embedded; candidate answers are never stored."
-)
+with hero("question_memory"):
+    st.badge("VECTOR DATABASE", icon=":material/database:", color="green")
+    st.title("Question memory", icon=":material/database:")
+    st.caption(
+        f"Generated questions are embedded with `{EMBEDDING_MODEL}` via OpenRouter and stored in ChromaDB, "
+        "so new questions can be checked for semantic repeats. Only question text is embedded; candidate answers are never stored."
+    )
 
 memory = get_question_memory()
 
 # ---------------------------------------------------------------------------
 # Thresholds
 # ---------------------------------------------------------------------------
-with st.container(border=True):
+with panel(border=True):
     st.markdown("**Similarity thresholds**")
     stored = current_thresholds()
     left, right = st.columns(2)
@@ -86,7 +88,7 @@ with demo_tab:
     if result:
         st.caption(f"Sent {len(result.avoid_used)} stored question(s) as \"avoid\" · {len(result.outputs)} generation round(s)")
         for item in result.rejected:
-            with st.container(border=True):
+            with panel(border=True):
                 if item["novelty"] == "duplicate":
                     st.badge(f"Rejected duplicate · {item['similarity']:.2f}", color="red")
                 else:
@@ -95,7 +97,7 @@ with demo_tab:
                 if item["nearest"]:
                     st.caption(f"Too close to: {item['nearest']}")
         for item in result.accepted:
-            with st.container(border=True):
+            with panel(border=True):
                 st.badge(f"{item['novelty'].capitalize()} · {item['similarity']:.2f}", color=LABEL_COLORS[item["novelty"]])
                 st.markdown(f"**{item['question']}**")
                 if item["nearest"]:

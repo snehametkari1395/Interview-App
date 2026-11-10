@@ -4,6 +4,7 @@ from interview_app.catalog import INTERVIEW_TYPES
 from interview_app.guidelines import generate_guide, guide_to_markdown
 from interview_app.security_guard import GuardError, guard_untrusted_input
 from interview_app.ui import profile_inputs, remember_profile, render_sidebar, require_api_key, show_error
+from interview_app.theme import hero, panel
 
 MAX_FOCUS_CHARS = 300
 
@@ -11,13 +12,14 @@ st.set_page_config(page_title="Interviewer guide | Interview App", page_icon=":m
 
 params = render_sidebar()
 
-st.badge("FOR INTERVIEWERS", icon=":material/fact_check:", color="green")
-st.title("Interviewer guide", icon=":material/fact_check:")
-st.caption("Generate a structured, fair evaluation guide: criteria, competencies, a 1–5 rubric, indicators, red flags, and follow-ups.")
+with hero("interviewer_guide"):
+    st.badge("FOR INTERVIEWERS", icon=":material/fact_check:", color="green")
+    st.title("Interviewer guide", icon=":material/fact_check:")
+    st.caption("Generate a structured, fair evaluation guide: criteria, competencies, a 1–5 rubric, indicators, red flags, and follow-ups.")
 
 settings, output = st.columns([1, 2], gap="large")
 with settings:
-    with st.container(border=True):
+    with panel(border=True):
         profile = profile_inputs("guide", show_depth=True, show_persona=True)
         interview_types = st.pills(
             "Interview type",
@@ -59,7 +61,7 @@ with output:
 
     result = st.session_state.get("guide_result")
     if not result:
-        with st.container(border=True):
+        with panel(border=True):
             st.markdown("**What you'll get**")
             st.markdown(
                 "- Evaluation criteria with weights\n- Expected competencies\n- A 1–5 scoring rubric\n"
@@ -85,7 +87,7 @@ with output:
                 st.markdown("#### Expected competencies")
                 columns = st.columns(2)
                 for index, competency in enumerate(guide["competencies"]):
-                    with columns[index % 2].container(border=True):
+                    with columns[index % 2], panel(border=True):
                         st.markdown(f"**{competency['name']}**")
                         st.caption(competency["description"])
 
@@ -98,16 +100,16 @@ with output:
 
                 st.markdown("#### Scoring rubric")
                 for row in guide["rubric"]:
-                    with st.container(border=True):
+                    with panel(border=True):
                         st.markdown(f"**{row['score']} · {row['label']}**")
                         st.caption(row["description"])
 
                 good, bad = st.columns(2)
-                with good.container(border=True, height="stretch"):
+                with good, panel(border=True, height="stretch"):
                     st.markdown(":green[**Positive indicators**]")
                     for item in guide["positive_indicators"]:
                         st.markdown(f"- {item}")
-                with bad.container(border=True, height="stretch"):
+                with bad, panel(border=True, height="stretch"):
                     st.markdown(":red[**Red flags**]")
                     for item in guide["red_flags"]:
                         st.markdown(f"- {item}")

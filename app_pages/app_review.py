@@ -3,6 +3,7 @@ import streamlit as st
 from interview_app.app_review import DOSSIER_FILES, PERSPECTIVES, build_dossier, critique_to_markdown, run_critique
 from interview_app.security_guard import GuardError
 from interview_app.ui import render_sidebar, require_api_key, show_error
+from interview_app.theme import hero, panel
 
 SEVERITY_BADGE = {"high": ("High", "red"), "medium": ("Medium", "orange"), "low": ("Low", "gray")}
 PERSPECTIVE_ICON = {"Usability": ":material/touch_app:", "Security": ":material/shield:", "Prompt engineering": ":material/edit_note:"}
@@ -11,11 +12,12 @@ st.set_page_config(page_title="App review | Interview App", page_icon=":material
 
 params = render_sidebar()
 
-st.badge("APP REVIEW", icon=":material/rate_review:", color="green")
-st.title("AI critique of this app", icon=":material/rate_review:")
-st.caption("Ask the configured model to review Interview App for usability, security, and prompt engineering, with actionable recommendations.")
+with hero("app_review"):
+    st.badge("APP REVIEW", icon=":material/rate_review:", color="green")
+    st.title("AI critique of this app", icon=":material/rate_review:")
+    st.caption("Ask the configured model to review Interview App for usability, security, and prompt engineering, with actionable recommendations.")
 
-with st.container(border=True):
+with panel(border=True):
     st.markdown("**What gets sent**")
     st.write(
         f"An allow-listed set of {len(DOSSIER_FILES)} source files (pages, prompts, guard, and API client) plus a short feature summary. "
@@ -52,7 +54,7 @@ if critique:
         column.metric(name, f"{perspective['score']} / 5" if perspective else "—", border=True)
 
     if critique["top_priorities"]:
-        with st.container(border=True):
+        with panel(border=True):
             st.markdown("**Top priorities**")
             for index, item in enumerate(critique["top_priorities"], start=1):
                 st.markdown(f"{index}. {item}")
@@ -68,7 +70,7 @@ if critique:
             st.markdown("**Issues and recommendations**")
             for issue in perspective["issues"]:
                 label, color = SEVERITY_BADGE[issue["severity"]]
-                with st.container(border=True):
+                with panel(border=True):
                     st.badge(label, color=color)
                     st.markdown(f"**{issue['title']}**")
                     if issue["evidence"]:

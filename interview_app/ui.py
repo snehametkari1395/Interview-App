@@ -14,6 +14,7 @@ from interview_app.openrouter import (
     session_spend,
 )
 from interview_app.pricing import CostBreakdown, format_usd
+from interview_app.theme import lime, panel
 
 MAX_TOKEN_OPTIONS = [256, 512, 1000, 1500, 2000, 3000, 4000, 6000, 8000, 12000, 16000]
 
@@ -53,7 +54,7 @@ def _seed(key: str, value) -> None:
 def render_sidebar() -> GenerationParams:
     params = current_params()
     with st.sidebar:
-        with st.container(border=True):
+        with lime("active_model"):
             st.caption("Active model")
             st.markdown(f"**{model_label(active_model())}**")
             st.caption(params.label(get_capabilities(active_model())))
@@ -68,7 +69,7 @@ def render_cost(cost: CostBreakdown | None, *, title: str | None = None) -> None
     if cost is None:
         return
     kind = "Estimated cost" if cost.is_estimate else "Actual cost"
-    with st.container(border=True):
+    with panel(border=True):
         st.markdown(f"**{title or kind}** · `{cost.model}`")
         columns = st.columns(4)
         columns[0].metric("Input tokens", f"{'~' if cost.is_estimate else ''}{cost.input_tokens:,}")

@@ -9,6 +9,7 @@ from interview_app.question_bank import ROLES
 from interview_app.security_guard import GuardError, guard_untrusted_input
 from interview_app.services import record_chain_usage
 from interview_app.ui import render_cost, render_sidebar, show_error
+from interview_app.theme import hero, panel
 
 MAX_JD_CHARS = 12000
 
@@ -16,11 +17,12 @@ st.set_page_config(page_title="Job description | Interview App", page_icon=":mat
 
 render_sidebar()
 
-st.badge("ROLE INTELLIGENCE", icon=":material/description:", color="green")
-st.title("Build a role brief", icon=":material/description:")
-st.caption("Turn the job description into a focused interview plan (LangChain chain A), then take it into practice or the interview chat.")
+with hero("job_description"):
+    st.badge("ROLE INTELLIGENCE", icon=":material/description:", color="green")
+    st.title("Build a role brief", icon=":material/description:")
+    st.caption("Turn the job description into a focused interview plan (LangChain chain A), then take it into practice or the interview chat.")
 
-with st.container(border=True):
+with panel(border=True):
     with st.form("job_description_form", border=False):
         domain = st.selectbox("Domain", list(DOMAINS), help="Helps the analysis use the right vocabulary and priorities.")
         role = st.selectbox("Role title", ["Use the title in the description"] + ROLES + ["Other / not listed"])
@@ -87,18 +89,18 @@ elif analysis:
     if analysis["required_skills"]:
         skill_columns = st.columns(2)
         for index, skill in enumerate(analysis["required_skills"]):
-            with skill_columns[index % 2].container(border=True):
+            with skill_columns[index % 2], panel(border=True):
                 st.markdown(f"**{skill['name']}** · {skill['importance']}")
                 st.caption(skill["evidence"] or "Highlighted in the job description.")
     else:
         st.write("No clear skills were returned. Try a more complete job description.")
 
     technical, behavioural = st.columns(2)
-    with technical.container(border=True, height="stretch"):
+    with technical, panel(border=True, height="stretch"):
         st.markdown("**Technical competencies**")
         for item in analysis["technical_competencies"]:
             st.markdown(f"- {item}")
-    with behavioural.container(border=True, height="stretch"):
+    with behavioural, panel(border=True, height="stretch"):
         st.markdown("**Behavioural competencies**")
         for item in analysis["behavioural_competencies"]:
             st.markdown(f"- {item}")
@@ -107,13 +109,13 @@ elif analysis:
 
     st.markdown("### Likely interview questions")
     for index, question in enumerate(analysis["likely_questions"], start=1):
-        with st.container(border=True):
+        with panel(border=True):
             st.markdown(f"**{index:02d} / {question}**")
 
     if analysis["prep_plan"]:
         st.markdown("### Preparation plan")
         for step in analysis["prep_plan"]:
-            with st.container(border=True):
+            with panel(border=True):
                 st.markdown(f"**{step['step']}** · {step['focus']}")
                 st.write(step["action"])
 

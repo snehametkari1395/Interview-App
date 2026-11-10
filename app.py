@@ -6,18 +6,13 @@ import streamlit as st
 
 from interview_app.navigation import available_pages
 from interview_app.semantic_guard import install_default_detector
+from interview_app.theme import apply_styles
 
 st.set_page_config(page_title="Interview App", page_icon="assets/icon.svg", layout="wide")
 st.logo("assets/logo.svg", icon_image="assets/icon.svg", size="large")
 
-# Metric values never wrap and are cut off with "…" in narrow columns (e.g. "$0.000257", "1,047,576").
-# Size each value to its own box instead, and let word values wrap at spaces.
-st.html("""<style>
-[data-testid="stMetric"] { container-type: inline-size; }
-[data-testid="stMetricValue"] { font-size: clamp(1.1rem, 15cqi, 2.25rem); line-height: 1.2; }
-[data-testid="stMetricValue"], [data-testid="stMetricValue"] *,
-[data-testid="stMetricLabel"], [data-testid="stMetricLabel"] * { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
-</style>""")
+# Shared look (green + lime banners, white cards, lime active menu item) and the metric sizing fix.
+apply_styles()
 
 
 def access_code() -> str:

@@ -16,6 +16,7 @@ from interview_app.openrouter import (
 )
 from interview_app.pricing import format_usd, price_per_million
 from interview_app.ui import model_label, provider_label, render_sidebar
+from interview_app.theme import hero, panel
 
 DEFAULT_EFFORT = "Model default"
 NO_FALLBACK = ""
@@ -41,9 +42,10 @@ def _reset_to_recommended() -> None:
     st.session_state.cfg_use_seed = False
 
 
-st.badge("ADVANCED", icon=":material/settings:", color="green")
-st.title("Model settings", icon=":material/settings:")
-st.caption("Choose the provider and model, tune generation parameters, and see exactly what will be sent. These settings apply to every AI feature.")
+with hero("model_settings"):
+    st.badge("ADVANCED", icon=":material/settings:", color="green")
+    st.title("Model settings", icon=":material/settings:")
+    st.caption("Choose the provider and model, tune generation parameters, and see exactly what will be sent. These settings apply to every AI feature.")
 
 catalog = model_catalog()
 configured = get_model()
@@ -67,7 +69,7 @@ current_provider = current.split("/", 1)[0]
 
 left, right = st.columns([1, 1.3], gap="large")
 with left:
-    with st.container(border=True):
+    with panel(border=True):
         st.subheader("Model")
         _seed("cfg_provider", current_provider if current_provider in providers else providers[0])
         if st.session_state.cfg_provider not in providers:  # e.g. after the catalog refreshes
@@ -94,7 +96,7 @@ with left:
 
 caps = get_capabilities(model)
 with right:
-    with st.container(border=True):
+    with panel(border=True):
         st.subheader(model_label(model))
         st.caption(f"`{model}`")
         if not caps.known:
@@ -139,7 +141,7 @@ for index, spec in enumerate(PARAM_SPECS):
     for key in (slider_key, number_key):  # keep values inside this model's range
         st.session_state[key] = cast(min(maximum, max(minimum, st.session_state[key])))
 
-    with grid[index % 2].container(border=True):
+    with grid[index % 2], panel(border=True):
         st.markdown(f"**{spec.label}** · `{spec.key}`")
         slider_column, number_column = st.columns([3, 1.2], vertical_alignment="bottom")
         slider_column.slider(
@@ -162,7 +164,7 @@ for index, spec in enumerate(PARAM_SPECS):
         values[spec.key] = value
 
 extra_left, extra_right = st.columns(2, gap="large")
-with extra_left.container(border=True):
+with extra_left, panel(border=True):
     st.markdown("**Reasoning effort** · `reasoning.effort`")
     options = [DEFAULT_EFFORT, *caps.effort_options]
     _seed("cfg_effort", stored.reasoning_effort or DEFAULT_EFFORT)
@@ -173,7 +175,7 @@ with extra_left.container(border=True):
         ("Options come from this model's published list. " if caps.supports_reasoning else ":orange[Not supported by this model; never sent.] ")
         + "Higher effort improves multi-step accuracy at the cost of latency and output tokens (reasoning tokens are billed as output)."
     )
-with extra_right.container(border=True):
+with extra_right, panel(border=True):
     st.markdown("**Seed** · `seed`")
     seed_supported = caps.known and caps.supports("seed")
     _seed("cfg_use_seed", stored.seed is not None)
@@ -212,7 +214,7 @@ with notes_column:
     )
 
 account, usage = st.columns(2, gap="large")
-with account.container(border=True):
+with account, panel(border=True):
     st.markdown("**OpenRouter account**")
     if st.button("Check credits and limits", icon=":material/account_balance_wallet:", disabled=not get_api_key()):
         try:
@@ -225,7 +227,7 @@ with account.container(border=True):
         row[0].metric("Limit remaining", format_usd(info.get("limit_remaining")) if info.get("limit_remaining") is not None else "No limit")
         row[1].metric("Used today", format_usd(info.get("usage_daily")))
         row[2].metric("Used in total", format_usd(info.get("usage")))
-with usage.container(border=True):
+with usage, panel(border=True):
     st.markdown("**This session's AI calls**")
     log = st.session_state.get("usage_log", [])
     if log:

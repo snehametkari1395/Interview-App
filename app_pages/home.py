@@ -2,6 +2,7 @@ import streamlit as st
 
 from interview_app.chains.interview_graph import run_config
 from interview_app.progress import SKILLS, summarize
+from interview_app.theme import card, hero
 from interview_app.ui import render_sidebar
 
 render_sidebar()
@@ -16,26 +17,34 @@ for thread in st.session_state.get("chat_threads", []):
         chat_states.append(graph.get_state(run_config(thread["id"])).values)
 progress = summarize(chat_states, st.session_state.get("practice_history", []))
 
-st.title("Welcome back" if progress.has_activity else "Welcome to Interview App", icon=":material/waving_hand:")
-st.caption("Ready for your next practice round? Pick up where you left off, or start something new.")
+with hero("home"):
+    st.badge("INTERVIEW PREP", icon=":material/graphic_eq:", color="green")
+    st.title("Welcome back" if progress.has_activity else "Welcome to Interview App", icon=":material/waving_hand:")
+    st.caption("Get interview-ready before interview day: practice realistic mock interviews, "
+               "get feedback on every answer, and see exactly where to improve.")
+    st.page_link("app_pages/interview_chat.py", label="Start a mock interview", icon=":material/arrow_forward:")
 
 # ---------------------------------------------------------------------------
 # Headline metrics
 # ---------------------------------------------------------------------------
-metrics = st.columns(4)
-metrics[0].metric("Interviews completed", progress.interviews_completed, border=True,
-                  help="Interview chat sessions that reached the summary.")
-metrics[1].metric("Questions answered", progress.questions_answered, border=True,
-                  help="Scored answers in the Interview chat and the Practice room.")
-metrics[2].metric("Average score", f"{progress.average_score:.1f} / 5" if progress.average_score is not None else "—", border=True)
-metrics[3].metric("Highest level reached", progress.highest_level or "—", border=True,
-                  help="The hardest difficulty you have answered at. The interviewer raises it after two strong answers.")
+METRICS = (
+    ("Interviews completed", progress.interviews_completed, ":material/task_alt:",
+     "Interview chat sessions that reached the summary."),
+    ("Questions answered", progress.questions_answered, ":material/forum:",
+     "Scored answers in the Interview chat and the Practice room."),
+    ("Average score", f"{progress.average_score:.1f} / 5" if progress.average_score is not None else "—", ":material/star:", None),
+    ("Highest level reached", progress.highest_level or "—", ":material/trending_up:",
+     "The hardest difficulty you have answered at. The interviewer raises it after two strong answers."),
+)
+for index, (column, (label, value, icon, help_text)) in enumerate(zip(st.columns(4), METRICS)):
+    with column, card(f"metric_{index}", height="stretch"):
+        st.metric(label, value, icon=icon, help=help_text)
 
 # ---------------------------------------------------------------------------
 # Skills and recent activity
 # ---------------------------------------------------------------------------
 skills_column, activity_column = st.columns([1, 1.3], gap="medium")
-with skills_column.container(border=True, height="stretch"):
+with skills_column, card("skills", height="stretch"):
     st.markdown("**Skill breakdown**")
     if progress.skill_samples:
         for key, label in SKILLS:
@@ -51,12 +60,14 @@ with skills_column.container(border=True, height="stretch"):
             st.progress(0.0, text=f"{label} · not scored yet")
         st.caption("Answer questions in the Interview chat to see your skill breakdown.")
 
-with activity_column.container(border=True, height="stretch"):
+with activity_column, card("activity", height="stretch"):
     st.markdown("**Recent activity**")
     if progress.recent:
         for item in progress.recent:
             row = st.container(horizontal=True, vertical_alignment="center")
-            row.markdown(f"**{item['score']}/5**")
+            score = item["score"]
+            with row:
+                st.badge(f"{score}/5", color="green" if score >= 4 else "orange" if score >= 3 else "red")
             row.markdown(item["question"] if len(item["question"]) <= 90 else item["question"][:87] + "...")
             st.caption(f"{item['source']} · {item['role']}" + (f" · {item['difficulty']}" if item["difficulty"] else ""))
     else:
@@ -66,20 +77,23 @@ with activity_column.container(border=True, height="stretch"):
                      icon=":material/play_circle:")
 
 # ---------------------------------------------------------------------------
-# Start practising
+# Start practicing
 # ---------------------------------------------------------------------------
-st.subheader("Start practising")
+st.subheader("Start practicing")
+# First card: dark green feature card; the others: white cards with a lime icon chip.
 CARDS = (
-    ("app_pages/interview_chat.py", ":material/forum:", "AI mock interview",
+    ("app_pages/interview_chat.py", ":material/forum:", "AI mock interviews that feel real",
      "A conversational interviewer that follows up on your answers and adapts the difficulty as you go."),
     ("app_pages/practice.py", ":material/record_voice_over:", "Practice room",
      "One question at a time with a score, a sample answer, and step-by-step coaching."),
     ("app_pages/job_description.py", ":material/description:", "Job description prep",
      "Paste or upload a job description to get the skills, likely questions, and a prep plan."),
 )
-for column, (path, icon, title, text) in zip(st.columns(len(CARDS)), CARDS):
-    with column.container(border=True, height="stretch"):
-        st.markdown(f"{icon} **{title}**")
+for index, (column, (path, icon, title, text)) in enumerate(zip(st.columns(len(CARDS)), CARDS)):
+    make_box = hero if index == 0 else card
+    with column, make_box(f"feature_{index}", height="stretch"):  # created inside the column
+        st.markdown(f":green-badge[{icon}]")
+        st.markdown(f"#### {title}")
         st.caption(text)
         st.page_link(path, label="Try now", icon=":material/arrow_forward:")
 

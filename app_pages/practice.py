@@ -12,6 +12,7 @@ from interview_app.pricing import format_usd
 from interview_app.question_bank import get_questions
 from interview_app.security_guard import FLAG_DESCRIPTIONS, GuardError, assess_input, guard_untrusted_input
 from interview_app.ui import profile_inputs, remember_profile, render_sidebar, show_error
+from interview_app.theme import hero, lime, panel
 
 st.set_page_config(page_title="Practice room | Interview App", page_icon=":material/code:", layout="wide")
 
@@ -70,13 +71,14 @@ def build_question_set(profile, focus: str, count: int, source: str, use_jd: boo
 
 
 def render_setup() -> None:
-    st.badge("INTERVIEW PRACTICE", icon=":material/terminal:", color="green")
-    st.title("The interview room", icon=":material/record_voice_over:")
-    st.caption("Build a focused round. Get a clear debrief. Turn the next answer into a stronger one.")
+    with hero("practice"):
+        st.badge("INTERVIEW PRACTICE", icon=":material/terminal:", color="green")
+        st.title("The interview room", icon=":material/record_voice_over:")
+        st.caption("Build a focused round. Get a clear debrief. Turn the next answer into a stronger one.")
     left, right = st.columns([1.35, 1], gap="large")
     with left:
         jd_questions = st.session_state.get("jd_questions", [])
-        with st.container(border=True):
+        with panel(border=True):
             st.subheader("Set up your round")
             profile = profile_inputs("setup")
             focus = st.segmented_control("Question focus", DOMAINS[profile.domain].focuses, default="Balanced", required=True, key=f"setup_focus_{profile.domain}")
@@ -113,7 +115,7 @@ def render_setup() -> None:
             st.session_state.practice_notice = notice
             st.rerun()
     with right:
-        with st.container(border=True):
+        with panel(border=True):
             st.subheader("Your interview brief")
             st.write("Every round is built around a domain and role, not a generic quiz.")
             st.markdown(":material/looks_one: **Answer** one question at a time")
@@ -143,19 +145,19 @@ def render_feedback(feedback: dict, persona: str) -> None:
             st.caption(f"{persona} interviewer")
             st.write(feedback["interviewer_reaction"])
     if feedback.get("criteria"):
-        with st.container(border=True):
+        with panel(border=True):
             st.markdown("**How you did on each criterion**")
             for item in feedback["criteria"]:
                 st.markdown(f"**{item['name']}** · {item['rating']} / 5")
                 st.progress(item["rating"] / 5, text=item["comment"] or None)
     strengths, improvements = st.columns(2)
     with strengths:
-        with st.container(border=True, height="stretch"):
+        with panel(border=True, height="stretch"):
             st.markdown("**What landed**")
             for item in feedback["strengths"]:
                 st.markdown(f"- {item}")
     with improvements:
-        with st.container(border=True, height="stretch"):
+        with panel(border=True, height="stretch"):
             st.markdown("**Your next improvement**")
             for item in feedback["improvements"]:
                 st.markdown(f"- {item}")
@@ -241,6 +243,45 @@ def submit_answer(profile, mode: str, question: dict, index: int, answer: str) -
     st.rerun()
 
 
+# Right-hand guidance panel on the question screen (layout follows the reference design).
+INTERVIEW_TIPS = (
+    (":material/psychology:", "Think aloud", "Explain your reasoning, not just the answer."),
+    (":material/lightbulb:", "Use examples", "Relate answers to real projects when possible."),
+    (":material/schedule:", "Take your time", "There's no need to rush your response."),
+)
+ASSESSED = ((":material/menu_book:", "Technical accuracy"), (":material/forum:", "Communication"),
+            (":material/extension:", "Problem solving"), (":material/account_tree:", "Structure"))
+MODE_DESCRIPTIONS = {
+    "Guided coaching": "Answer one question at a time. You get a score, a structure hint before answering, and step-by-step coaching after.",
+    "Mock interview": "Answer as you would in a real interview. The structure hint stays hidden until after you answer.",
+}
+
+
+def render_interviewer_panel(profile, mode: str, index: int, total: int, topic: str) -> None:
+    with hero("interviewer"):
+        row = st.container(horizontal=True, vertical_alignment="center")
+        row.markdown("### :material/smart_toy:")
+        with row.container(gap=None):
+            st.markdown(f"**AI interviewer** · {profile.persona.lower()}")
+            st.caption(f"{profile.depth} responses · {profile.difficulty} level")
+        st.badge(f"Question {index + 1} of {total}", icon=":material/flag:", color="green")
+    with panel(border=True):
+        st.progress(index / total, text=f"Progress · {index} of {total} answered")
+        st.markdown("**Description**")
+        st.caption(MODE_DESCRIPTIONS.get(mode, ""))
+        st.markdown("**Interview tips**")
+        for icon, title, text in INTERVIEW_TIPS:
+            st.caption(f"{icon} **{title}** · {text}")
+        st.markdown("**What we'll assess**")
+        chips = st.container(horizontal=True, gap="small")
+        with chips:
+            for icon, label in (*ASSESSED, (":material/tag:", topic)):
+                st.badge(label, icon=icon, color="green")
+    with lime("reminder"):
+        st.markdown(":material/lightbulb: **Quick reminder**")
+        st.caption("Find a quiet moment and write your answer as you would say it aloud. Short and structured beats long.")
+
+
 def render_practice() -> None:
     questions = st.session_state.practice_questions
     index = st.session_state.practice_index
@@ -254,63 +295,76 @@ def render_practice() -> None:
 
     mode = st.session_state.practice_mode
     question = questions[index]
-    st.title(st.session_state.practice_role, icon=":material/record_voice_over:")
-    st.caption(f"{mode} · {profile.domain} · {profile.difficulty} · {profile.persona} interviewer · {profile.depth} responses")
+    with hero("practice_session"):
+        st.badge(mode.upper(), icon=":material/record_voice_over:", color="green")
+        st.title(st.session_state.practice_role, icon=":material/record_voice_over:")
+        st.caption(f"{profile.domain} · {profile.difficulty} · {profile.persona} interviewer · {profile.depth} responses")
     if st.session_state.get("practice_notice"):
         st.info(st.session_state.practice_notice, icon=":material/info:")
-    st.progress(index / total, text=f"Question {index + 1} of {total}")
-    with st.container(border=True):
-        st.caption(question["topic"] + (f" · {question['novelty']} question" if question.get("novelty") else ""))
-        st.subheader(html.escape(question["question"]))
 
-    feedback = st.session_state.practice_feedback
-    if feedback is None:
-        if mode == "Guided coaching":
-            with st.expander("Before you answer: a quick structure"):
-                st.write(question.get("hint") or GENERIC_HINT)
-        answer = st.text_area(
-            "Your answer",
-            height=220,
-            max_chars=MAX_ANSWER_CHARS,
-            placeholder="Take a breath, then write it as you would say it aloud.",
-            key=f"answer_{index}",
-        )
-        if st.button("Get feedback", type="primary", disabled=not bool(get_api_key())):
-            submit_answer(profile, mode, question, index, answer)
-    else:
-        flags = st.session_state.get("practice_flags") or ()
-        if flags:
-            st.warning(
-                "Parts of your answer looked like instructions to the AI, so they were treated as plain content: "
-                + "; ".join(FLAG_DESCRIPTIONS.get(flag, flag) for flag in flags)
-                + ".",
-                icon=":material/shield:",
+    main, side = st.columns([1.7, 1], gap="large")
+    with side:
+        render_interviewer_panel(profile, mode, index, total, question["topic"])
+    with main:
+        with panel(border=True):
+            labels = st.container(horizontal=True, gap="small")
+            with labels:
+                st.badge(question["topic"], icon=":material/tag:", color="green")
+                if question.get("novelty"):
+                    st.badge(f"{question['novelty']} question", color="gray")
+            st.subheader(html.escape(question["question"]))
+
+        feedback = st.session_state.practice_feedback
+        if feedback is None:
+            if mode == "Guided coaching":
+                with st.expander("Before you answer: a quick structure", icon=":material/route:"):
+                    st.write(question.get("hint") or GENERIC_HINT)
+            answer = st.text_area(
+                "Your answer",
+                height=240,
+                max_chars=MAX_ANSWER_CHARS,
+                placeholder="Take a breath, then write it as you would say it aloud.",
+                key=f"answer_{index}",
             )
-        render_feedback(feedback, profile.persona)
-        cost = st.session_state.get("practice_cost")
-        if cost is not None:
-            st.caption(f"Actual cost of this feedback: {format_usd(cost.best_total)} · {cost.input_tokens:,} input + {cost.output_tokens:,} output tokens · `{cost.model}`")
-        actions = st.container(horizontal=True)
-        if actions.button("Retry this answer", icon=":material/replay:"):
-            st.session_state[f"answer_{index}"] = ""
-            st.session_state.practice_feedback = None
-            st.rerun()
-        if feedback.get("follow_up") and not question.get("follow_up_added"):
-            if actions.button("Answer the follow-up", icon=":material/subdirectory_arrow_right:", help="Adds the interviewer's follow-up as the next question."):
-                question["follow_up_added"] = True
-                questions.insert(index + 1, {"question": feedback["follow_up"], "topic": "Follow-up", "kind": question.get("kind", "technical"), "hint": ""})
+            actions = st.container(horizontal=True)
+            with actions:
+                if st.button("Get feedback", type="primary", icon=":material/arrow_forward:", disabled=not bool(get_api_key())):
+                    submit_answer(profile, mode, question, index, answer)
+                end = st.button("End session", icon=":material/stop_circle:")
+        else:
+            flags = st.session_state.get("practice_flags") or ()
+            if flags:
+                st.warning(
+                    "Parts of your answer looked like instructions to the AI, so they were treated as plain content: "
+                    + "; ".join(FLAG_DESCRIPTIONS.get(flag, flag) for flag in flags)
+                    + ".",
+                    icon=":material/shield:",
+                )
+            render_feedback(feedback, profile.persona)
+            cost = st.session_state.get("practice_cost")
+            if cost is not None:
+                st.caption(f"Actual cost of this feedback: {format_usd(cost.best_total)} · {cost.input_tokens:,} input + {cost.output_tokens:,} output tokens · `{cost.model}`")
+            actions = st.container(horizontal=True)
+            if actions.button("Retry this answer", icon=":material/replay:"):
+                st.session_state[f"answer_{index}"] = ""
+                st.session_state.practice_feedback = None
+                st.rerun()
+            if feedback.get("follow_up") and not question.get("follow_up_added"):
+                if actions.button("Answer the follow-up", icon=":material/subdirectory_arrow_right:", help="Adds the interviewer's follow-up as the next question."):
+                    question["follow_up_added"] = True
+                    questions.insert(index + 1, {"question": feedback["follow_up"], "topic": "Follow-up", "kind": question.get("kind", "technical"), "hint": ""})
+                    st.session_state.practice_index += 1
+                    st.session_state.practice_feedback = None
+                    st.rerun()
+            if actions.button("Next question →", type="primary"):
                 st.session_state.practice_index += 1
                 st.session_state.practice_feedback = None
                 st.rerun()
-        if actions.button("Next question →", type="primary"):
-            st.session_state.practice_index += 1
-            st.session_state.practice_feedback = None
-            st.rerun()
+            end = actions.button("End session", icon=":material/stop_circle:")
 
-    if st.button("End session"):
+    if end:
         st.session_state.practice_index = total
         st.rerun()
-
 
 render_sidebar()
 

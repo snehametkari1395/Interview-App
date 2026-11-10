@@ -17,6 +17,7 @@ from interview_app.structured import (
     run_qa,
 )
 from interview_app.ui import profile_inputs, remember_profile, render_cost, render_sidebar, require_api_key, show_error
+from interview_app.theme import hero, panel
 
 MAX_QUESTION_CHARS = 600
 CATEGORY_LABELS = {"technical": "Technical", "scenario": "Scenario", "behavioral": "Behavioural"}
@@ -33,9 +34,10 @@ params = render_sidebar()
 model = active_model()
 caps = get_capabilities(model)
 
-st.badge("STRUCTURED JSON", icon=":material/data_object:", color="green")
-st.title("Structured output", icon=":material/data_object:")
-st.caption("Generate machine-readable interview material that is validated against a JSON Schema, then view or download it.")
+with hero("structured_output"):
+    st.badge("STRUCTURED JSON", icon=":material/data_object:", color="green")
+    st.title("Structured output", icon=":material/data_object:")
+    st.caption("Generate machine-readable interview material that is validated against a JSON Schema, then view or download it.")
 
 
 def render_estimate(request) -> None:
@@ -76,7 +78,7 @@ qa_tab, evaluation_tab, schema_tab = st.tabs(["Format 1 Â· Q&A set", "Format 2 Â
 
 with qa_tab:
     settings, output = st.columns([1, 2], gap="large")
-    with settings, st.container(border=True):
+    with settings, panel(border=True):
         profile = profile_inputs("sq", show_persona=False)
         focus = st.segmented_control("Focus", DOMAINS[profile.domain].focuses, default="Balanced", required=True, key=f"sq_focus_{profile.domain}")
         count = st.slider("Number of questions", 1, MAX_QA_COUNT, 3, key="sq_count")
@@ -121,7 +123,7 @@ with qa_tab:
 
 with evaluation_tab:
     settings, output = st.columns([1, 2], gap="large")
-    with settings, st.container(border=True):
+    with settings, panel(border=True):
         profile = profile_inputs("se", show_persona=False)
         suggestion = get_questions(profile.role, "Balanced", 1, domain=profile.domain, difficulty=profile.difficulty)[0]["question"]
         if "se_question" not in st.session_state:
@@ -161,11 +163,11 @@ with evaluation_tab:
             for key, label in [("technical_accuracy", "Technical accuracy"), ("communication_skills", "Communication skills"), ("problem_solving", "Problem-solving ability")]:
                 st.markdown(f"**{label}:** {document[key]['comment']}")
             left, right = st.columns(2)
-            with left.container(border=True, height="stretch"):
+            with left, panel(border=True, height="stretch"):
                 st.markdown(":green[**Strengths**]")
                 for item in document["strengths"]:
                     st.markdown(f"- {item}")
-            with right.container(border=True, height="stretch"):
+            with right, panel(border=True, height="stretch"):
                 st.markdown(":red[**Weaknesses**]")
                 for item in document["weaknesses"]:
                     st.markdown(f"- {item}")
