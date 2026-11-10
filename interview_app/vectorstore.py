@@ -179,12 +179,14 @@ class QuestionMemory:
     def embed(self, texts: list[str]) -> list[list[float]]:
         return [list(map(float, vector)) for vector in self.embedding_function(texts)]
 
-    def similar(self, text: str, *, k: int = 5, domain: str | None = None) -> list[Match]:
+    def similar(self, text: str, *, k: int = 5, domain: str | None = None, vector: list[float] | None = None) -> list[Match]:
+        """Nearest stored questions. Pass ``vector`` (the embedding of ``text``) to skip a second embedding call."""
         total = self.count()
         if not total or not text.strip():
             return []
+        query = {"query_embeddings": [vector]} if vector is not None else {"query_texts": [text]}
         result = self.collection.query(
-            query_texts=[text],
+            **query,
             n_results=min(k, total),
             where={"domain": domain} if domain else None,
             include=["documents", "metadatas", "distances"],
@@ -196,14 +198,29 @@ class QuestionMemory:
             matches.append(Match(item_id, document, round(1.0 - float(distance), 4), dict(metadata or {})))
         return matches
 
-    def check(self, text: str, thresholds: Thresholds, *, domain: str | None = None, extra_texts: list[str] | None = None) -> NoveltyCheck:
-        """Label ``text`` against stored questions and, optionally, unsaved ``extra_texts`` (same batch)."""
+    def check(
+        self,
+        text: str,
+        thresholds: Thresholds,
+        *,
+        domain: str | None = None,
+        extra_texts: list[str] | None = None,
+        vector: list[float] | None = None,
+        extra_vectors: list[list[float]] | None = None,
+    ) -> NoveltyCheck:
+        """Label ``text`` against stored questions and, optionally, unsaved ``extra_texts`` (same batch).
+
+        ``vector`` and ``extra_vectors`` are precomputed embeddings of ``text`` and ``extra_texts``;
+        when given, no embedding call is made.
+        """
         thresholds = thresholds.validated()
-        matches = list(self.similar(text, k=5, domain=domain))
+        matches = list(self.similar(text, k=5, domain=domain, vector=vector))
         if extra_texts:
-            vectors = self.embed([text, *extra_texts])
-            for other, vector in zip(extra_texts, vectors[1:]):
-                matches.append(Match("batch", other, round(cosine(vectors[0], vector), 4), {"source": "this batch"}))
+            if vector is None or extra_vectors is None or len(extra_vectors) != len(extra_texts):
+                vectors = self.embed([text, *extra_texts])
+                vector, extra_vectors = vectors[0], vectors[1:]
+            for other, other_vector in zip(extra_texts, extra_vectors):
+                matches.append(Match("batch", other, round(cosine(vector, other_vector), 4), {"source": "this batch"}))
         matches.sort(key=lambda match: match.similarity, reverse=True)
         best = matches[0] if matches else None
         return NoveltyCheck(thresholds.label(best.similarity) if best else "new", best, tuple(matches[:5]))
@@ -219,13 +236,17 @@ class QuestionMemory:
 
     # -- writes ---------------------------------------------------------------
 
-    def add(self, text: str, metadata: dict) -> str:
-        """Store a generated question. Only whitelisted, non-sensitive metadata is kept."""
+    def add(self, text: str, metadata: dict, *, vector: list[float] | None = None) -> str:
+        """Store a generated question. Only whitelisted, non-sensitive metadata is kept.
+
+        Pass ``vector`` (the embedding already computed for the novelty check) to avoid embedding the text again.
+        """
         domain = str(metadata.get("domain", ""))
         clean = {key: str(metadata.get(key, ""))[:200] for key in METADATA_FIELDS}
         clean["created_at"] = clean["created_at"] or datetime.now(timezone.utc).isoformat(timespec="seconds")
         item_id = question_id(text, domain)
-        self.collection.upsert(ids=[item_id], documents=[text.strip()[:600]], metadatas=[clean])
+        embeddings = {"embeddings": [vector]} if vector is not None else {}
+        self.collection.upsert(ids=[item_id], documents=[text.strip()[:600]], metadatas=[clean], **embeddings)
         return item_id
 
     def delete(self, ids: list[str]) -> None:

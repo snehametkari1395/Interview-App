@@ -118,6 +118,7 @@ def generate_unique_questions(
     query = " ".join(filter(None, [profile.role, topic_hint, focus, " ".join((job_context or {}).get("interview_topics", [])[:5])]))
     avoid = memory.avoid_list(query, domain=profile.domain, k=8) + list(extra_avoid or [])
     result = GeneratedQuestions(accepted=[], avoid_used=list(avoid))
+    accepted_vectors: list[list[float]] = []  # embeddings of result.accepted, in the same order
     for _round in range(max_rounds + 1):
         needed = count - len(result.accepted)
         if needed <= 0:
@@ -134,25 +135,34 @@ def generate_unique_questions(
             payload["job_context"] = job_context
         output = chain.invoke(payload)
         result.outputs.append(output)
+        candidates = []
         for item in output.data["questions"]:
             if item["difficulty"] != profile.difficulty:
                 # The model labelled this question as a different level: drop it and ask for a replacement.
                 result.rejected.append({**item, "novelty": f"wrong difficulty ({item['difficulty']})", "nearest": "", "similarity": 0.0})
                 continue
+            candidates.append(item)
+        # One embedding call for the whole batch; each vector is reused for the novelty check and for storage.
+        vectors = memory.embed([item["question"].strip() for item in candidates]) if candidates else []
+        for item, vector in zip(candidates, vectors):
             batch = [accepted["question"] for accepted in result.accepted] if not store else None
-            check: NoveltyCheck = memory.check(item["question"], thresholds, domain=profile.domain, extra_texts=batch)
+            check: NoveltyCheck = memory.check(
+                item["question"], thresholds, domain=profile.domain, extra_texts=batch,
+                vector=vector, extra_vectors=accepted_vectors if batch else None,
+            )
             item = {**item, "novelty": check.label, "nearest": check.best.text if check.best else "", "similarity": check.similarity}
             if check.label == "duplicate":
                 result.rejected.append(item)
                 avoid.append(item["question"])
                 continue
             result.accepted.append(item)
+            accepted_vectors.append(vector)
             if store:
                 memory.add(item["question"], {
                     "domain": profile.domain, "role": profile.role, "company": company,
                     "difficulty": item["difficulty"], "category": item["category"], "topic": item["topic"],
                     "source": source, "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                })
+                }, vector=vector)
             if len(result.accepted) >= count:
                 break
     return result

@@ -44,7 +44,8 @@ def build_question_set(profile, focus: str, count: int, source: str, use_jd: boo
     if source == "AI-generated" and get_api_key():
         try:
             reserve_calls(1)
-            with st.spinner(f"Writing {count} new {profile.difficulty.lower()} questions for a {profile.role}..."):
+            article = "an" if profile.role[:1].upper() in "AEIOU" else "a"
+            with st.spinner(f"Writing {count} new {profile.difficulty.lower()} questions for {article} {profile.role}..."):
                 generated = generate_unique_questions(
                     spec_from_session(), profile, count=count, memory=get_question_memory(), thresholds=current_thresholds(),
                     focus=focus, job_context=job_context_from(st.session_state.get("jd_chain_analysis")), source="practice room",

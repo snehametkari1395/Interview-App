@@ -219,11 +219,19 @@ def plan_next(state: InterviewState, runtime: Runtime[Dependencies]) -> dict:
         payload["must_change_topic"] = True  # deterministic rule; the model cannot count reliably
     usage = list(state.get("usage", []))
     decision = None
+    vector = None
+    asked = list(state.get("asked", []))
     for _attempt in range(3):
         output = followup_chain(deps.spec, profile).invoke(payload)
         usage.append(output.usage_record())
         decision = output.data
-        check = deps.memory.check(decision["next_question"], deps.thresholds, domain=profile.domain, extra_texts=state.get("asked", []))
+        # One embedding call for the new question and the asked ones; reused for the check and for storage.
+        vectors = deps.memory.embed([decision["next_question"].strip(), *asked])
+        vector = vectors[0]
+        check = deps.memory.check(
+            decision["next_question"], deps.thresholds, domain=profile.domain, extra_texts=asked,
+            vector=vector, extra_vectors=vectors[1:],
+        )
         decision["novelty"] = check.label
         # Follow-ups may be similar to earlier questions (same topic), but never near-duplicates.
         ignored_rule = must_change_topic and decision["decision"] == "follow_up"
@@ -236,7 +244,7 @@ def plan_next(state: InterviewState, runtime: Runtime[Dependencies]) -> dict:
         deps.memory.add(decision["next_question"], {
             "domain": profile.domain, "role": profile.role, "company": state.get("company", ""),
             "difficulty": profile.difficulty, "category": decision["category"], "topic": decision["topic"], "source": "interview chat",
-        })
+        }, vector=vector)
     current = {
         "question": decision["next_question"], "topic": decision["topic"], "category": decision["category"],
         "difficulty": profile.difficulty, "expected_answer_points": decision["expected_answer_points"],
